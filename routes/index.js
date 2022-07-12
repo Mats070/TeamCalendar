@@ -173,7 +173,7 @@ router.get("/myCalendar", ensureAuthenticated, (req, res)=>{
             newToDos.push(todo.replaceAll("/*/$", ","))
         })
         Team.find({Members: req.user.name}, (err, teams)=>{
-             res.render("myToDoList", {
+             res.render("myTodoList", {
                  name: req.user.name,
                  Todos: req.user.PersönlicheTodos,
                  TeamList: teams

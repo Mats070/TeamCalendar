@@ -17,10 +17,8 @@ const Team = require("../models/Teams");
 const { request } = require("express");
 
 //Login Page
-router.get('/login(/*)?', (req,res) =>{
-    const loginInfos = req.params[1];
+router.get('/login', (req,res) =>{
    res.render("login", {
-       loginInfos: loginInfos,
        TeamList: []
    })
 });
@@ -128,7 +126,7 @@ router.post("/register", (req, res) =>{
                        //console.log(sendEmail)
 
                         req.flash("success_msg", "Your are now registered and can log in! We have sent a verify code to your email.")
-                        res.redirect("/users/login/"+req.body.email+"&&"+req.body.password);
+                        res.redirect("/users/login");
                     })
                     .catch(err => console.log(err));
                 }))        
