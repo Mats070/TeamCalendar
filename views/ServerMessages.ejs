@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= type %></title>
+    <style>
+        .MessageContainer{
+            font-size: 1.1em;
+        }
+
+        .Completed{
+            margin-top: 5%;
+        }
+
+        .CompletedMsg{
+            text-align: center;
+        }
+
+        .nextButton{
+            margin-top: 3%;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+        }
+
+        .nextButton a{
+            color: green;
+            border: none;
+            text-align: none;
+            text-decoration: none;
+        }
+
+        .nextButton a:hover{
+            text-decoration: underline;
+            cursor: pointer;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="MessageContainer">
+        <% if (type == "Completed"){%>
+            <!-- Success Message -->
+            <div class="Completed">
+                <div class="CompletedMsg">
+                    <%= message %>
+                </div>
+                <div class="nextButton">
+                    <a onclick="Navigate()">Einverstanden</a>
+                </div>
+            </div>
+        <%}else{%>
+            <!-- Error Message -->
+            <div class="Error">
+                <div class="ErrorMsg">
+                    <%= message %>
+                </div>
+                <div class="nextButton">
+                    <a onclick="Navigate()">Einverstanden</a>
+                </div>
+            </div>
+        <%}%>
+    </div>
+    <script>
+        function Navigate(){
+           location.href = "<%= nextRoute%>"
+        }
+    </script>
+</body>
+</html>

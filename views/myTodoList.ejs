@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My ToDo-List</title>
+    <script src="https://kit.fontawesome.com/2a59950bb8.js" crossorigin="anonymous"></script>
+    <style>
+        /* Sidebar CSS-Styling*/
+.sidebar {
+            height: 100%; /* 100% Full-height */
+            width: 0; /* 0 width - change this with JavaScript */
+            position: fixed; /* Stay in place */
+            z-index: 1; /* Stay on top */
+            top: 0vh;
+            left: 0;
+            background-color: #111; /* Black*/
+            overflow-x: hidden; /* Disable horizontal scroll */
+            padding-top: 60px; /* Place content 60px from the top */
+            transition: 0.5s; /* 0.5 second transition effect to slide in the sidebar */;
+            color: white; /* Damit man das Geschriebene sieht */
+        }
+
+.sidebar button{
+    font-size: 1.1em;
+    padding: 0.25em;
+    background-color: darkblue;
+    border-color: #111;
+    color: white;
+    cursor: pointer;
+}
+
+.sidebar button.logout{
+    background-color: red;
+}
+
+.closebtn {
+    position: absolute;
+    top: 0;
+    right: 25px;
+    font-size: 36px;
+    margin-left: 50px;
+    color: red;
+    text-decoration: none;
+}
+
+.closebtn:hover{
+    color: orange;
+}
+
+        .openbtn {
+            font-size: 1.2em;
+            cursor: pointer;
+            background-color: white;
+            color: black;
+            padding: 7px 7px 7px 7px;
+            border: none;
+            position: fixed;
+            z-index: 2;
+            border-radius: 5%;
+        }
+
+        .openbtn:hover {
+            background-color: grey;
+            color: white;
+        }
+
+        #TodoContainer{
+            text-align: center;
+        }
+
+        #actualTodosContainer{
+            width: 100%;
+            display: flex;
+            justify-content: center;
+        }
+
+        #actualToDos{
+            width: 70%;
+            height: 70vh;
+            border: solid 2px black;
+            overflow-y: scroll;
+        }
+
+        .todo{
+            height: 5vh;
+            max-width: 90%;
+            margin-left: 5%;
+            margin-right: 5%;
+            margin-top: 1%;
+            background-color: seashell;
+            font-size: 1.25em;
+            -moz-hyphens: auto;
+            -o-hyphens: auto;
+            -webkit-hyphens: auto;
+            -ms-hyphens: auto;
+            hyphens: auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-left: 3%;
+            padding-right: 3%;
+        }
+
+        #createSelection{
+            margin-top: 3vh;
+        }
+
+        .BtnCompleted{
+            background-color: seashell;
+            color: green;
+            border: none;
+            cursor: pointer;
+            font-size: 1.3em;
+        }
+        @media (max-width: 800px) {
+            .todo{
+                font-size: 0.9em;
+                overflow-x: scroll;
+            }
+            .BtnCompleted{
+                position: absolute;
+                right: 20%;
+            }
+            
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <button class="openbtn" onclick="openSidebar()" id="openbtn">&#9776;</button>
+
+    <!-- ToDo-Application -->
+    <div id="TodoContainer">
+        <h1>My personal ToDo's</h1>
+        <div id="actualTodosContainer">
+            <div id="actualToDos"></div>
+        </div>
+        <div id="createSelection">
+            <input type="text" id="InputNewToDo" onsubmit="AddToDo()" maxlength="60"><button type="submit" onclick="AddToDo()" id="SubmitNewToDo">Submit</button>
+        </div>
+    </div>
+
+    <script>
+        let todos = "<%= Todos %>".split(",");
+       // const TODOS = JSON.parse(todos);
+        window.addEventListener("load", function(){
+            //Alle Todos aus der Datenbank übertragen
+           // console.log(todos)
+
+           document.getElementById("TODOPERSO").style.backgroundColor = "darkgrey";
+            todos.forEach(todo =>{
+                if (todo != ""){
+                    let ToDo = todo.replaceAll("/*/$", ",")
+                    let TODO = ToDo.replaceAll(" ", "/*/$");
+                
+                document.getElementById("actualToDos").innerHTML += "<div class=todo>"+ToDo+"<button class=BtnCompleted onclick=ToDoCompleted("+JSON.stringify(TODO)+")>&#10004;</button></div>"
+                }
+                
+            })
+            document.getElementById("InputNewToDo").focus();
+        })
+
+        document.getElementById("InputNewToDo").addEventListener("keypress", function(event){
+            //Wenn Enter gedrückt wurde, soll das todo veröffentlicht werden
+            if (event.key === "Enter"){
+                document.getElementById("SubmitNewToDo").click();
+            }
+        })
+
+        function AddToDo(){
+            const todo = document.getElementById("InputNewToDo").value;
+            if(todo.includes('"') || todo.includes("'") || todo.includes("/*/$")){
+                    alert("Unzulässige Eingabe. Keine Anführungszeichen erlaubt. Außerdem ist die Zeichenabfolge /*/$ ungültig")
+            }else if(todos.includes(todo)){
+                //Todo schon vorhanden
+                alert("Dieses Todo steht bereits auf der liste")
+            }else if(todo != ""){
+                //Neues Element erstellen und in der Datenbank speichern ohne reloaden der seite
+                const TODO = todo.replaceAll(" ", "/*/$")
+                document.getElementById("actualToDos").innerHTML += "<div class=todo>"+todo+"<button class=BtnCompleted onclick=ToDoCompleted("+JSON.stringify(TODO)+")>&#10004;</div>"
+
+
+                const xhr = new XMLHttpRequest;
+                xhr.open("POST", "/myToDoList", true);
+                xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+                xhr.send("todo="+todo);
+                document.getElementById("InputNewToDo").value = "";
+                document.getElementById("InputNewToDo").focus();
+                todos.push(todo);
+            }else{
+                alert("Bitte gebe zunächst etwas ein")
+            }
+        }
+
+        function ToDoCompleted(todo){
+            let TODO = todo.replaceAll("/*/$", " ");
+            const xhr = new XMLHttpRequest;
+            xhr.open("POST", "/myToDoList/deleteEntry", true);
+            xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            xhr.onreadystatechange = function() {
+                  if (this.readyState == 4 && this.status == 200) {
+                  if (this.responseText == "Todo completed"){
+                    location.reload();
+                  }
+                  
+            }}
+            xhr.send("todo="+TODO);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title></title>
+    <style>
+        
+         /* The switch - the box around the slider */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
+}
+
+/* Hide default HTML checkbox */
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+/* The slider */
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 26px;
+  width: 26px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+input:checked + .slider {
+  background-color: #2196F3;
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #2196F3;
+}
+
+input:checked + .slider:before {
+  -webkit-transform: translateX(26px);
+  -ms-transform: translateX(26px);
+  transform: translateX(26px);
+}
+
+/* Rounded sliders */
+.slider.round {
+  border-radius: 34px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+} 
+    </style>
+</head>
+<body>
+     <!-- Sidebar -->
+     <button class="openbtn" onclick="openSidebar()" id="openbtn">&#9776;</button>
+     
+    <!-- Settings -->
+    <div id="TeamSettings">
+      <h1 style="text-align: center;">Team-Settings (<%= team.Teamname%>)</h1>
+        <span>Einträge älter als 7 Tage löschen: </span>
+        <!-- Rounded switch -->
+        <label class="switch">
+           <input type="checkbox" id="check7DaysDelete">
+           <span class="slider round"></span>
+        </label> 
+
+        <button id="SaveSettingsBtn">Änderungen speichern</button>
+
+        <script>
+        //Globale Settings Variabeln
+        let AutomaticDeleteEntrys = "<%= team.Settings.AutomaticDeleteEntrys%>";
+        let NewEntrysPermission;
+        let NotesWritePermission;
+ 
+        const SettingsSaveBtn = document.getElementById("SaveSettingsBtn");
+        const check7DaysDelete = document.getElementById("check7DaysDelete");
+
+        window.addEventListener("load", function(){
+            document.getElementById("<%= team.id%>").style.backgroundColor = "darkgrey";
+                document.getElementById("infobtn<%=team.id%>").style.backgroundColor = "darkgrey";
+                const AdminList = "<%= team.Admin %>".split(",");
+                if (AdminList.includes("<%= name %>")){
+                    document.getElementById("settingsbtn<%=team.id%>").style.backgroundColor = "darkgrey"
+                }
+            if (AutomaticDeleteEntrys == true ||AutomaticDeleteEntrys == "true"){
+                //Slider dieses wiederspiegeln lassen
+                check7DaysDelete.checked = true
+            }else{
+                check7DaysDelete.checked = false
+            }
+            NewEntrysPermission = ""
+            NotesWritePermission = ""
+        })
+
+        SettingsSaveBtn.addEventListener("click", function(){
+            //Alle Werte abrufen und diese in Settimgs speichern
+            AutomaticDeleteEntrys = check7DaysDelete.checked;
+
+            const xhr = new XMLHttpRequest;
+            xhr.open("POST", "/teams/"+"<%= team.id%>/settings", true);
+            xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            xhr.onreadystatechange = function() {
+                if (this.readyState == 4 && this.status == 200) {
+                    console.log(this.responseText);
+                }
+            }
+            xhr.send("AutomaticDeleteEntrys="+AutomaticDeleteEntrys);
+        })
+        </script>
+</body>
+</html>

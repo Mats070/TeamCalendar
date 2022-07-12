@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email-Verifying</title>
+    <link rel="stylesheet" href="https://bootswatch.com/4/journal/bootstrap.min.css">
+    <script src="https://kit.fontawesome.com/2a59950bb8.js" crossorigin="anonymous"></script>
+    <style>
+        html{
+            background: lightblue;
+        }
+
+        body{
+            background-color: lightblue;
+        }
+        /* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+  -moz-appearance: textfield;
+}
+
+        #Validation{
+            margin-top: 2vh;
+            text-align: center;
+        }
+
+        .VerifyCode{
+            height: 12vh;
+            width: 10%;
+            font-size: 5em;
+            text-align: center;
+            background-color: rgb(199, 227, 236);
+            border: solid 2px black;
+        }
+
+        #NewEmailBtn{
+            border: solid 3px black;
+            background-color: white;
+        }
+
+        @media  screen and (max-width: 700px) {
+            .VerifyCode{
+                width: 16.5%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <% if(typeof errors != "undefined") { %>
+        <% errors.forEach(function(error){ %>
+          <div class="alert alert-warning alert-dismissible fade show" role="alert">
+            <%= error.msg %>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
+              <span aria-hidden="true">&times</span>
+            </button>
+          </div>
+        <% }); %>
+      <% } %>
+  
+      <% if(success_msg != ""){ %>
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+          <%= success_msg %>
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times</span>
+          </button>
+        </div>
+        <% } %>
+
+        <% if(error_msg != ""){ %>
+          <div class="alert alert-warning alert-dismissible fade show" role="alert">
+            <%= error_msg %>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
+              <span aria-hidden="true">&times</span>
+            </button>
+          </div>
+        <% } %>
+        <% if(error != ""){ %>
+          <div class="alert alert-warning alert-dismissible fade show" role="alert">
+            <%= error %>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
+              <span aria-hidden="true">&times</span>
+            </button>
+          </div>
+        <% } %>
+
+
+
+    <div id="Validation">
+        <h3 style="text-align: center;">Enter your Validation-Code</h3>
+        <input type="number" class="VerifyCode" id="VerifyCode" min="1" max="9"><input type="number" class="VerifyCode" id="VerifyCode1" min="1" max="9"><input type="number" class="VerifyCode" id="VerifyCode2" min="1" max="9"><input type="number" class="VerifyCode" id="VerifyCode3" min="1" max="9"><br><br>
+        <button onclick="newEmail()" id="NewEmailBtn"><b>Neue Email anfordern</b></button>
+    </div>
+
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+    <script>
+        const VC = document.getElementById("VerifyCode");
+        const VC1 = document.getElementById("VerifyCode1");
+        const VC2 = document.getElementById("VerifyCode2");
+        const VC3 = document.getElementById("VerifyCode3");
+
+        //Direkt Fokus ins erste Kästchen
+        window.addEventListener("load", function(){
+            // FIREFOX
+            if (navigator.userAgent.indexOf("Firefox") != -1 ) {
+               console.log("Mozilla Firefox");
+            }
+            
+            VC.value = "";
+            VC1.value = "";
+            VC2.value = "";
+            VC3.value = "";
+            document.getElementById("VerifyCode").focus()
+        })
+
+        //Handeln von Copy&Paste
+        VC.addEventListener("input", function(){
+            if (VC.value.length > 1){
+                const valueArray = VC.value.split("")
+                if (VC.value.length == 2){
+                    //1. und 2. Kästchen werden ausgefüllt
+                    VC.value = valueArray[0];
+                    VC1.value = valueArray[1];
+                    VC2.focus()
+                }else if (VC.value.length == 3){
+                    //1. 2. und 3. Kästchen werden ausgefüllt
+                    VC.value = valueArray[0];
+                    VC1.value = valueArray[1];
+                    VC2.value = valueArray[2];
+                    VC3.focus();
+                }else{
+                    //Alles ausfüllen und abschicken
+                    VC.value = valueArray[0];
+                    VC1.value = valueArray[1];
+                    VC2.value = valueArray[2];
+                    VC3.value = valueArray[3];
+                    setTimeout(function(){
+                        CheckCode()
+                    },150)
+                }
+            }
+        })
+
+        VC1.addEventListener("input", function(){
+            if (VC1.value.length > 1){
+                const valueArray = VC1.value.split("")
+                if (VC1.value.length == 2){
+                    //1. und 2. Kästchen werden ausgefüllt
+                    VC.value = valueArray[0];
+                    VC1.value = valueArray[1];
+                    VC2.focus()
+                }else if (VC1.value.length == 3){
+                    //1. 2. und 3. Kästchen werden ausgefüllt
+                    VC.value = valueArray[0];
+                    VC1.value = valueArray[1];
+                    VC2.value = valueArray[2];
+                    VC3.focus();
+                }else{
+                    //Alles ausfüllen und abschicken
+                    VC.value = valueArray[0];
+                    VC1.value = valueArray[1];
+                    VC2.value = valueArray[2];
+                    VC3.value = valueArray[3];
+                    setTimeout(function(){
+                        CheckCode()
+                    },150)
+                }
+            }
+        })
+
+        VC2.addEventListener("input", function(){
+            if (VC2.value.length >= 2){
+                const valueArray = VC2.value.split("")
+                if (VC2.value.length == 2){
+                    //1. und 2. Kästchen werden ausgefüllt
+                    VC2.value = valueArray[0];
+                    VC3.value = valueArray[1];
+                    if(VC.value!="" && VC1.value !="" && VC2.value != "" && VC3.value != ""){
+                        CheckCode();
+                    }
+                }else if (VC2.value.length == 3){
+                    //1. 2. und 3. Kästchen werden ausgefüllt
+                    VC.value = valueArray[0];
+                    VC1.value = valueArray[1];
+                    VC2.value = valueArray[2];
+                    VC3.focus();
+                }else{
+                    //Alles ausfüllen und abschicken
+                    VC.value = valueArray[0];
+                    VC1.value = valueArray[1];
+                    VC2.value = valueArray[2];
+                    VC3.value = valueArray[3];
+                    setTimeout(function(){
+                        CheckCode()
+                    },150)
+                }
+            }
+        })
+        
+        VC3.addEventListener("input", function(){
+            if (VC3.value.length > 1){
+                const valueArray = VC3.value.split("")
+                if (VC3.value.length == 2){
+                    //1. und 2. Kästchen werden ausgefüllt
+                    VC.value = valueArray[0];
+                    VC1.value = valueArray[1];
+                    VC2.focus()
+                }else if (VC3.value.length == 3){
+                    //1. 2. und 3. Kästchen werden ausgefüllt
+                    VC.value = valueArray[0];
+                    VC1.value = valueArray[1];
+                    VC2.value = valueArray[2];
+                    VC3.value = "";
+                    VC3.focus();
+                }else{
+                    //Alles ausfüllen und abschicken
+                    VC.value = valueArray[0];
+                    VC1.value = valueArray[1];
+                    VC2.value = valueArray[2];
+                    VC3.value = valueArray[3];
+                    setTimeout(function(){
+                        CheckCode()
+                    },150)
+                }
+            }
+        })
+
+
+        //NAch dem Eingeben einer Zahl zum nächsten Kasten springen und wenn alle belegt sind absenden
+        VC.addEventListener("keypress", function(event){
+           console.log(event.keyCode)
+            if(event.keyCode == 48 || event.keyCode == 49 || event.keyCode == 50 ||event.keyCode == 51 ||event.keyCode == 52 ||event.keyCode == 53 ||event.keyCode == 54 ||event.keyCode == 55 ||event.keyCode == 56 ||event.keyCode == 57){
+                if (VC1.value == ""){
+                    VC1.focus();
+                }else if (VC2.value == ""){
+                    VC2.focus();
+                }else if(VC3.value == ""){
+                    VC3.focus()
+                }else{
+                    setTimeout(function(){
+                        CheckCode();
+                    },50)
+                }
+            }
+        })
+
+        VC1.addEventListener("keypress" , function(event){
+            //console.log(event.keyCode)
+            if (event.keyCode == 48 || event.keyCode == 49 || event.keyCode == 50 ||event.keyCode == 51 ||event.keyCode == 52 ||event.keyCode == 53 ||event.keyCode == 54 ||event.keyCode == 55 ||event.keyCode == 56 ||event.keyCode == 57){
+                if (VC.value == ""){
+                    VC.focus();
+                }else if (VC2.value == ""){
+                    VC2.focus()
+                }else if(VC3.value == ""){
+                    VC3.focus()
+                }else{
+                    setTimeout(function(){
+                        CheckCode();
+                    },50)
+                }
+            }
+        })
+
+        VC2.addEventListener("keypress", function(event){
+           // console.log(event.keyCode)
+            if (event.keyCode == 48 || event.keyCode == 49 || event.keyCode == 50 ||event.keyCode == 51 ||event.keyCode == 52 ||event.keyCode == 53 ||event.keyCode == 54 ||event.keyCode == 55 ||event.keyCode == 56 ||event.keyCode == 57){
+                //Weiter zum 4. 
+                if (VC.value == ""){
+                    VC.focus();
+                }else if(VC1.value == ""){
+                    VC1.focus();
+                }else if(VC3.value == ""){
+                    VC3.focus()
+                }else{
+                    setTimeout(function(){
+                        CheckCode();
+                    },50)
+                }
+            }
+        })
+
+        VC3.addEventListener("keypress", function(event){
+            if (event.keyCode == 48 || event.keyCode == 49 || event.keyCode == 50 ||event.keyCode == 51 ||event.keyCode == 52 ||event.keyCode == 53 ||event.keyCode == 54 ||event.keyCode == 55 ||event.keyCode == 56 ||event.keyCode == 57){
+                //Prüfen ob alle ausgefüllt sind und sonst absenden
+                if (VC.value == ""){
+                    VC.focus();
+                }else if(VC1.value == ""){
+                    VC1.focus();
+                }else if (VC2.value == ""){
+                    VC2.focus();
+                }else{
+                    //Code absenden
+                    setTimeout(function(){
+                        CheckCode();
+                    },50)
+                }
+            }
+        })
+
+        //Smoothes Löschen der Zahlen
+        VC1.addEventListener("keydown", function(event){
+            if(event.keyCode == 8 && VC1.value == ""){
+                //Zurück zu 1
+                VC.value = "";
+                VC.focus();
+            }
+        });
+
+        VC2.addEventListener("keydown", function(event){
+            if(event.keyCode == 8 && VC2.value == ""){
+                //Zurück zu 2
+                VC1.value = "";
+                VC1.focus()
+            }
+        })
+
+        VC3.addEventListener("keydown", function(event){
+            if(event.keyCode == 8 && VC3.value == ""){
+                //Zurück zu 3
+                //console.log("Zurück")
+                VC2.value = "";
+                VC2.focus()
+            }
+        })
+
+       
+
+        //Überprüfen des eingegebenen codes
+        function CheckCode(){
+                const code = VC.value+VC1.value+VC2.value+VC3.value
+                const xhr = new XMLHttpRequest;
+                xhr.open("POST", "/VerifyAccount", true);
+                xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+               //xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+            
+            xhr.onreadystatechange = function() {
+                  if (this.readyState == 4 && this.status == 200) {
+                  if (this.responseText == "true" || this.responseText == true){
+                    location.href = "/dashboard";
+                  }else{
+                      alert("Eingegebener Code ist falsch")
+                  }
+                  
+            }
+        };
+            xhr.send('code='+code);
+            }
+            
+
+            function newEmail(){
+                const xhr = new XMLHttpRequest;
+                xhr.open("POST", "/VerifyAccount/newEmail", true);
+                xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+                xhr.onreadystatechange = function() {
+                  if (this.readyState == 4 && this.status == 200) {
+                  if (this.responseText != ""){
+                    alert("Es gab einen Fehler beim Senden der Email. Geben Sie folgenden Code ein, um die Registrierung abzuschließen: "+this.responseText)
+                  }                  
+            }
+        };
+                xhr.send();
+                console.log("New Email sent")
+            }
+    </script>
+</body>
+</html>

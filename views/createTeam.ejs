@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Team</title>
+    <link rel="stylesheet" href="https://bootswatch.com/4/journal/bootstrap.min.css">
+  <script src="https://kit.fontawesome.com/2a59950bb8.js" crossorigin="anonymous"></script> 
+  <style>
+      #results{
+            height: 20vh;
+            width: 100%;
+            border: solid 0.5px grey;
+            overflow-y: scroll;
+            display: none;
+        }
+
+        .result{
+            width: 80%;
+            margin-left: 10%;
+            background-color: grey;
+            color: white;
+            margin-top: 1vh;
+            height: 6vh;
+            overflow-y: hidden;
+            text-align: center;
+            font-size: 1.2em;
+        }
+        
+        .openbtn{
+            position: absolute;
+            left: 2%;
+            top: 1vh;
+        }
+
+        #form{
+            margin-top: 5vh;
+        }
+  </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <button class="openbtn" onclick="openSidebar()" id="openbtn">&#9776;</button>
+    
+    <!-- Creating a new Team -->
+    <h1 style="text-align: center;">Neues Team erstellen</h1>
+    <div id="form">
+        <form>
+            <div class="form-group">
+                <label for="name">Name des Teams: </label>
+                <input
+                    type="name",
+                    id="name",
+                    class="form-control"
+                    placeholder="Enter Teamname",
+                    value="",
+                    autocomplete="off"
+                />
+            </div>
+            <div class="form-group">
+                <label for="Members">Mitglieder hinzufügen</label>
+                <input
+                    type="Members",
+                    id="Members",
+                    class="form-control",
+                    placeholder="Search Users and add them to your team",
+                    value="",
+                    autocomplete="off"
+                />
+            </div>
+                <div id="results">
+                    <!-- Hier werden die Results präsentiert -->
+                </div>
+                <div id="Added">
+                    <span>Bereits hinzugefügt: </span><span id="Users"></span>
+                </div>
+        </form>
+    </div>
+    <button type="submit" class="btn btn-primary btn-block" onclick="createTeam()">Team erstellen</button>
+
+    <script>
+        const searchbar = document.getElementById("Members");
+        const userList = '<%= Users %>';
+        const Users = userList.split(",");
+        const Username = '<%= name %>'
+        let results = document.getElementById("results");
+        let Members = [Username];
+        const AddedUsers = document.getElementById("Users");
+
+        AddedUsers.innerText = Members;
+        
+        //Suchleiste, welche auch Vorschläge macht
+        searchbar.addEventListener("keyup", (e)=>{
+            document.getElementById("results").innerHTML = "";
+            AddedUsers.innerText = Members;
+            const searchValue = e.target.value.toUpperCase();
+
+             const UsernameIndex = Users.indexOf(Username);
+             if (UsernameIndex != -1){
+                 Users.splice(UsernameIndex, 1)
+             }
+
+            if (searchValue != ""){
+                results.style.display = "inline-block";
+                
+                let filteredUsers = Users.filter(user=>{
+                    if (user.toUpperCase() == searchValue){
+                        document.getElementById("results").innerHTML += '<div class=result onclick=addtoCard("'+user+'")>'+user+'</div>'
+                    }else{
+                    return user.toUpperCase().includes(searchValue);
+                }
+                })  
+
+            for (i=4; i < (filteredUsers.length -1); i++){
+                filteredUsers.pop();
+            }
+
+            if (filteredUsers.length > 0){
+                filteredUsers.forEach(user => {
+                    document.getElementById("results").innerHTML += '<div class=result onclick=addtoCard("'+user+'")>'+user+'</div>'
+                })
+            }else if(document.getElementById("results").innerText == ""){
+                document.getElementById("results").innerHTML = "<span>Kein passender Treffer. Versuchen Sie es erneut</span>"
+            }
+
+            }else{
+               setTimeout(function(){
+                document.getElementById("results").style.display = "none";
+               }, 200)
+          }
+        });
+
+        function addtoCard(name){
+            //Name in globalen Array speichern und dies im User-Interface sichtbar machen
+            const Check = Members.includes(name)
+            if (Check == false){
+                //Im Array ist der Name noch nicht vorhanden
+                Members.push(name);
+                AddedUsers.innerText = Members;
+            }
+            results.style.display = "none";
+            searchbar.value = ""
+        }
+
+        function createTeam(){
+            const Teamname = document.getElementById("name").value;
+            const Teammembers = document.getElementById("Users").innerText;
+
+            const xhr = new XMLHttpRequest;
+            xhr.open("POST", "/createTeam", true);
+            xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            //xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+            
+            xhr.onreadystatechange = function() {
+                  if (this.readyState == 4 && this.status == 200) {
+                  //console.log("Response: "+this.responseText);
+                  location.href = "/teams/"+ this.responseText+"/Calendar";
+            }
+        };
+            xhr.send('Teamname='+Teamname+'&Teammembers='+ Teammembers);
+            //console.log(Teamname+ Teammembers);
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+</body>
+</html>

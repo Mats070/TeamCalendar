@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= team.Teamname %></title>
+    <script src="https://code.iconify.design/2/2.2.1/iconify.min.js"></script>
+    <style>
+
+        #TeamOverview{
+            text-align: center;
+        }
+
+        #Notes{
+            width: 60%;
+            height: 10vh;
+        }
+
+        #LeaveTeamContainer{
+            display: flex;
+            justify-content: end;
+        }
+
+        #LeaveTeamContainer button{
+            font-size: 1.1em;
+            background-color: darkred;
+            color: seashell;
+            padding: 3px;
+            border: 2px solid darkred;
+            cursor: pointer;
+        }
+       
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <button class="openbtn" onclick="openSidebar()" id="openbtn">&#9776;</button>
+    
+   
+    <!-- Team Übersicht -->
+    <div id="TeamOverview">
+        <h2><%= team.Teamname %></h2>
+        <p>Mitglieder: <%= team.Members%></p>
+        <textarea type="text" name="Notes" id="Notes" value="<%= team.Notes%>" placeholder="<%= team.Notes%>"></textarea>
+    </div>
+
+    <!-- Persönliche Aktionen -->
+    <div id="LeaveTeamContainer">
+        <button onclick="LeaveTeam()"><span class="iconify" data-icon="pepicons:leave"></span>Team verlassen</button>
+    </div>
+    </div>
+    <script>
+        const NotesfromServer = "<%= team.Notes%>";
+        const teamid = "<%= team.id%>"
+        const teamname = "<%= team.Teamname%>"
+        const TeamAdmin = "<%= team.Admin%>";
+        const Username = "<%= name %>";
+        let TeamSetttings  ="<%= settings%>"
+        window.addEventListener("load", function(){
+            document.getElementById("<%= team.id%>").style.backgroundColor = "darkgrey";
+                document.getElementById("infobtn<%=team.id%>").style.backgroundColor = "darkgrey";
+
+                const AdminList = "<%= team.Admin %>".split(",");
+                if (AdminList.includes("<%= name %>")){
+                    document.getElementById("settingsbtn<%=team.id%>").style.backgroundColor = "darkgrey"
+                }
+            
+            document.getElementById("Notes").value = NotesfromServer;
+            if (Username == TeamAdmin){
+                document.getElementById("Notes").disabled = false
+            }else{
+                document.getElementById("Notes").disabled = true
+            }
+        })
+   
+        function LeaveTeam(){
+            //console.log(teamid)
+            const check = confirm("Do you really want to leave this team ("+ teamname +")")
+            if (check == false){
+                location.href = "/teams/"+teamid
+            }else{
+                location.href = "/teams/"+teamid+"/leave"
+            }
+        }
+        
+    </script>
+</body>
+</html>

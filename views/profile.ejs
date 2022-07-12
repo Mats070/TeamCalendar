@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile</title>
+    <style>
+    .openbtn {
+            font-size: 1.2em;
+            cursor: pointer;
+            background-color: rgb(25, 25, 25);
+            color: white;
+            padding: 7px 7px 7px 7px;
+            border: none;
+            position: fixed;
+            z-index: 2;
+            border-radius: 5%;
+        }
+
+        .openbtn:hover {
+            background-color: grey;
+            color: black;
+        }
+
+
+        html {
+            background-color: rgb(25, 25, 25);
+        }
+        body{
+            background-color: rgb(25, 25, 25);
+            color: seashell;
+            /*overflow: hidden;*/
+            scroll-behavior: smooth;
+            max-width: 100%;
+            
+        }
+
+        .container{
+            max-width: 100%;
+            left: 0;
+            margin-left: 0px;
+            padding-left: 0px;
+            padding-right: 0px;
+            margin-right: 0px;
+        }
+
+        #infos{
+            padding-right: 10px;
+            padding-left: 10px;
+            padding-top: 6px;
+            padding-bottom: 6px;
+            border: dashed 2px white;
+        }
+
+        @media (max-width: 1000px) {
+            #infos{
+                border: none;
+            }
+        }
+
+        .container3{
+            margin-top: 100px;
+            /*margin-bottom: 100px;*/
+            padding-top: 0px;
+            display: flex;
+            justify-content: center;
+        }
+
+        #buttons{
+            margin-top: 5vh;
+            display: flex;
+            justify-content: center;
+        }
+
+        #Admin-Button{
+            display: none;
+            background-color: blue;
+            margin-left: 6px;
+        }
+        .padding{
+            margin-left: 2%;
+        }
+
+
+        button{
+            font-size: 1.1em;
+            padding: 0.25em;
+            background-color: #111;
+            border-color: #111;
+            color: white;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+            /* The switch - the box around the slider */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
+}
+
+/* Hide default HTML checkbox */
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+/* The slider */
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 26px;
+  width: 26px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+input:checked + .slider {
+  background-color: #2196F3;
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #2196F3;
+}
+
+input:checked + .slider:before {
+  -webkit-transform: translateX(26px);
+  -ms-transform: translateX(26px);
+  transform: translateX(26px);
+}
+
+/* Rounded sliders */
+.slider.round {
+  border-radius: 34px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+} 
+
+#Settings{
+    text-align: center;
+    display: none;
+}
+
+#SaveSettingsBtn{
+    background-color: grey;
+    margin-top: 1.5vh;
+}
+
+#ChangeTopicBtns{
+    text-align: center;
+}
+
+#ChangeTopicBtns button{
+    width: 20%;
+    height: 5vh;
+}
+
+#ProfileDirBTN{
+    background-color: blue;
+    border-right: solid 2px grey;
+}
+
+#SettingsDirBTN{
+    background-color: grey;
+    border-left: solid 2px grey;
+}
+
+#SettingsBtns{
+    display: flex;
+    justify-content: center;
+}
+
+#serveranswer{
+    color: lightgreen;
+}
+
+@media (max-width: 700px) {
+    #ChangeTopicBtns button{
+        width: 38%;
+    }
+}
+
+    </style>
+</head>
+<body>
+    <button class="openbtn" onclick="openSidebar()" id="openbtn">&#9776;</button>
+    
+    <!-- Profil/Einstellungen -->
+    <div id="ChangeTopicBtns">
+       <span> <button id="ProfileDirBTN">Profil</button><button id="SettingsDirBTN">Eintellungen</button></span>
+    </div>
+    <div id="Profile">
+    <div class="container3">
+        <div id="infos">
+            <p>Benutzername:  <%= user.name %></p>
+            <p>E-Mail Adresse:  <%= user.email %></p>
+            <% const date = user.creationDate %> 
+            <p>Registriert am:  <%= date %></p>
+        </div>
+    </div>
+    <div id="buttons">
+        <button class="logout" onclick="Logout()">Log out</button>
+    </div>
+
+    </div>
+    <div id="Settings">
+        <br>
+        <div id="serveranswer"></div>
+        <br>
+        <div id="7DDelete">
+            <span>Termine älter als 7 Tage löschen(im Persönlichen-Kalendar): </span>
+        <!-- Rounded switch -->
+        <label class="switch">
+           <input type="checkbox" id="check7DaysDelete">
+           <span class="slider round"></span>
+        </label> 
+        </div>
+        <div id="DefaultColor">
+            <p>Standardmäßig ausgewählte Farbe: </p><input type="color" id="MYDefaultColor">
+        </div>
+        <div id="SettingsBtns">
+            <button id="SaveSettingsBtn">Änderungen speichern</button>
+            <br>
+            
+        </div>
+    </div>
+    <script>
+        const SettingsDirBTN = document.getElementById("SettingsDirBTN");
+        const ProfileDirBTN = document.getElementById("ProfileDirBTN");
+
+        SettingsDirBTN.addEventListener("click", function(){
+            ProfileDirBTN.style.backgroundColor = "grey";
+            SettingsDirBTN.style.backgroundColor = "blue";
+            document.getElementById("Settings").style.display = "inline";
+            document.getElementById("Profile").style.display = "none";
+        })
+
+        ProfileDirBTN.addEventListener("click", function(){
+            ProfileDirBTN.style.backgroundColor = "blue";
+            SettingsDirBTN.style.backgroundColor = "grey";
+            document.getElementById("Settings").style.display = "none";
+            document.getElementById("Profile").style.display = "inline";
+        })
+
+
+
+
+        let AutomaticDeleteEntrys = "<%= user.Settings.AutomaticDeleteEntrys%>";
+        let DefaultColor = "<%= user.Settings.DefaultColor%>"
+
+        const SettingsSaveBtn = document.getElementById("SaveSettingsBtn");
+        const check7DaysDelete = document.getElementById("check7DaysDelete");
+        const DefaultColorNew = document.getElementById("MYDefaultColor");
+
+        window.addEventListener("load", function(){
+            if (AutomaticDeleteEntrys == true ||AutomaticDeleteEntrys == "true"){
+                //Slider dieses wiederspiegeln lassen
+                check7DaysDelete.checked = true
+            }else{
+                check7DaysDelete.checked = false
+            }
+
+            DefaultColorNew.value = DefaultColor;
+        })
+
+        SettingsSaveBtn.addEventListener("click", function(){
+            AutomaticDeleteEntrys = check7DaysDelete.checked;
+            DefaultColor = DefaultColorNew.value;
+
+            const xhr = new XMLHttpRequest;
+            xhr.open("POST", "/users/settings", true);
+            xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            xhr.onreadystatechange = function() {
+                if (this.readyState == 4 && this.status == 200) {
+                    document.getElementById("serveranswer").innerText =  this.responseText;
+                    setTimeout(function(){
+                        document.getElementById("serveranswer").innerText = ""
+                    }, 1500)
+                }
+            }
+            xhr.send("AutomaticDeleteEntrys="+AutomaticDeleteEntrys+"&DefaultColor="+DefaultColor);
+        })
+    </script>
+</body>
+</html>

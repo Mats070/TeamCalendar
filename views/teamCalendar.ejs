@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Team-Calendar</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.2/main.min.css">
+    <style>
+        /*Overlay2 Styling*/
+
+#overlay2{
+    display: none;
+    position: fixed;
+    height: 62vh;
+    width: 50%;
+    background-color: black;
+    color: white;
+    top: 20vh;
+    left: 25%;
+    z-index: 98;
+    text-align: center;
+}
+
+#overlay2 button{
+    text-align: center;
+    font-size: 1em;
+    background-color: black;
+    color: white;
+    border: solid 2px white;
+    padding: 0.2em;
+    margin-left: 1%;
+}
+
+#overlay2 button:hover{
+    color: sandybrown;
+    border-color: sandybrown;
+}
+
+#overlay{
+    display: none;
+    position: fixed;
+    height: 60vh;
+    width: 50%;
+    background-color: black;
+    color: white;
+    top: 20vh;
+    left: 25%;
+    z-index: 99;
+    text-align: center;
+}
+
+#overlay button{
+    margin-top: 3vh;
+    text-align: center;
+    font-size: 1em;
+    background-color: black;
+    color: white;
+    border: solid 2px white;
+    padding: 0.2em;
+}
+
+#overlay button:hover{
+    color: sandybrown;
+    border-color: sandybrown;
+}
+
+#overlay input#Titel{
+    height: 2em;
+    width: 50%;
+}
+
+.myentrys{
+    display: flex;
+    background-color: #444;
+    justify-content: space-between;
+    align-items: center;
+    width: 90%;
+    margin-left: 5%;
+    margin-top: 1%;
+}
+
+#overlay2header{
+    margin-top: 0vh;
+    height: 5vh;
+    width: 100%;
+}
+
+#myentrys{
+    margin-top: 0vh;
+    overflow-y: scroll;
+    width: 100%;
+    height: 50vh;
+}
+
+#results{
+    margin-top: 0vh;
+    overflow-y: scroll;
+    width: 100%;
+    height: 50vh;
+    display: none;
+}
+
+#delteEntrysSearch input{
+    width: 50%;
+    height: 2.5vh;
+}
+
+@media (max-width: 800px) {
+    body{
+        font-size: 0.8em;
+    }
+    #overlay{
+        width: 90%;
+        height: 70vh;
+        top: 15vh;
+        left: 5%;
+    }
+    #overlay2{
+        width: 90%;
+        height: 70vh;
+        top: 15vh;
+        left: 5%;
+    }
+
+}
+
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <button class="openbtn" onclick="openSidebar()" id="openbtn">&#9776;</button>
+    
+    <!-- Team-Kalender samt Overlays -->
+    <div id='calendar'></div>
+    <div id="overlay">
+        <a href="javascript:void(0)" class="closebtn" onclick="CloseDialogeField()">&times;</a>
+        <h2>Neuer Termin</h2>
+        <form action="/teams/<%= Team.id%>/Calendar" method="POST">
+            <input type="text" id="Titel" placeholder="Titel hinzufügen">
+            <h4>Start des Termins: </h4>
+            <input type="date" id="StartDate">
+            <input type="time" id="StartTime"><input type="checkbox" id="CheckGanztag" value="1" onclick="Ganztag()"><span>Ganztägig</span>
+            <h4 id="HeaderEnd">Ende des Termins(optional): </h4>
+            <input type="date" id="EndDate">
+            <input type="time" id="EndTime">
+            <h4>Hintergrundfarbe (optional + dunklere Farben empfohlen): </h4><input type="color" id="BGCOLOR">
+        </form>
+        <button type="submit" onclick="newTermin()">Termin erstellen</button>
+    </div>
+    <div id="overlay2">
+        <div id="overlay2header">
+            <a href="javascript:void(0)" class="closebtn" onclick="CloseDialogeField2()">&times;</a>
+            <h2>Termin Entfernen</h2>
+        </div>
+        <div id="delteEntrysSearch">
+            <input type="text" placeholder="Termine Suchen (Titel eingeben)" id="delteEntrysSearchInput">
+        </div>
+        <div id="myentrys">
+            <% meineEinträge.forEach(Eintrag =>{%>
+                <% const EintragString = JSON.stringify(Eintrag)%>
+                <div class="myentrys" title="<%=Eintrag.title%>">
+                    <p><%= Eintrag.title%> (<%=Eintrag.startConverted%>)</p><button onclick="deleteEntry('<%= EintragString %>')">Löschen</button>
+                </div>
+            <%})%>
+        </div>
+        <div id="results"></div>
+        </div>
+
+
+
+
+        <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.2/main.min.js"></script>
+        <script>
+            //Globale Variablen
+            const EntrySearchbar = document.getElementById("delteEntrysSearchInput");
+    
+            //Globale Variablen um die View Resposive zu machen
+            let DefaultView;
+            let ToolbarRight;
+            let Entrys = [];
+
+            document.addEventListener('DOMContentLoaded', function(){
+                document.getElementById("BGCOLOR").value = "<%= DefaultColor%>"
+                document.getElementById("<%= Team.id%>").style.backgroundColor = "darkgrey";
+                document.getElementById("infobtn<%=Team.id%>").style.backgroundColor = "darkgrey";
+
+                const AdminList = "<%= Team.Admin %>".split(",");
+                if (AdminList.includes("<%= name %>")){
+                    document.getElementById("settingsbtn<%=Team.id%>").style.backgroundColor = "darkgrey"
+                }
+                document.getElementById("CheckGanztag").checked = false;
+                EntrySearchbar.value = "";
+            })
+
+            if (window.screen.availWidth < 800){
+                DefaultView = "timeGridWeek";
+                ToolbarRight = "timeGridWeek,timeGridDay,listWeek"
+            }else{
+                 DefaultView = "dayGridMonth";
+                 ToolbarRight = "dayGridMonth,timeGridWeek,timeGridDay,listWeek"
+            }
+
+            function draw(objs){
+                //HTML
+                const calendarEl = document.getElementById("calendar");
+
+                //Kalender erstellen
+                let calendar = new FullCalendar.Calendar(calendarEl, {
+                    eventClick: eventClicked,
+
+                    navLinks: true,
+                    buttonText:{
+                        today:    'Heute',
+                        month:    'Monat',
+                        week:     'Woche',
+                        day:      'Tag',
+                        list:     'Liste'
+                    },
+                    weekNumberCalculation: "ISO",
+                    locale: 'en',
+                    customButtons: {
+                        AddButton:{
+                          text: "+",
+                          click: function(){
+                                openDialogeField();
+                           }},
+                        RBtn:{
+                           text: "-",
+                           click: function(){
+                                openDialogeField2()
+                            }
+                        }
+                    },
+                    contentHeight: "75vh",
+                    nowIndicator: true,
+                    windowResizeDelay: 0,
+                    initialView: DefaultView,
+                    headerToolbar: {
+                        left: " today AddButton RBtn",
+                        right: ToolbarRight
+                    },
+                    footerToolbar: {
+                        left: "prev",
+                        center: "title",
+                        right: "next"
+                    },
+                    events: objs,
+                    });
+                    calendar.render();
+            }
+
+
+            //Overlays öffnen und schließen + Overlays bedienen
+            function openDialogeField(){
+                 document.getElementById("overlay").style.display = "inline-block";
+                 document.getElementById("calendar").style.opacity = "0.1";
+                 document.getElementById("openbtn").style.opacity = "0.2";
+
+            }
+
+            function CloseDialogeField(){
+                 document.getElementById("overlay").style.display = "none";
+                 document.getElementById("openbtn").style.opacity = "1";
+                 document.getElementById("calendar").style.opacity = "1";
+
+            }
+
+            function openDialogeField2(){
+                 document.getElementById("overlay2").style.display = "inline-block";
+                 document.getElementById("openbtn").style.opacity = "1";
+                 document.getElementById("calendar").style.opacity = "0.1"; 
+            }
+
+            function CloseDialogeField2(){
+                 document.getElementById("overlay2").style.display = "none";
+                 document.getElementById("openbtn").style.opacity = "1";
+                 document.getElementById("calendar").style.opacity = "1"; 
+            }
+
+            
+
+            function Ganztag(){
+                const StartTime = document.getElementById("StartTime").style;
+                if (StartTime.display == "none"){
+                    StartTime.display = "";
+                    document.getElementById("EndDate").style.display = "";
+                    document.getElementById("EndTime").style.display = "";
+                    document.getElementById("HeaderEnd").style.display = "";
+                }else{
+                  //Werden noch angezeigt
+                    StartTime.display = "none";
+                    document.getElementById("EndDate").style.display = "none";
+                    document.getElementById("EndTime").style.display = "none";
+                    document.getElementById("HeaderEnd").style.display = "none";
+                  }
+                }
+
+                function Ganztag2(){
+                  const StartTime = document.getElementById("StartTime2");
+                 if (StartTime.style.display == "none"){
+                     StartTime.style.display = "inline"
+                 }else{
+                     StartTime.style.display = "none"
+                    }
+                }
+
+                
+
+                
+
+                function newTermin(){
+                    let T;
+
+const title = document.getElementById("Titel").value;
+const startD = document.getElementById("StartDate").value;
+let startT = document.getElementById("StartTime").value;
+let endD = document.getElementById("EndDate").value;
+let endT = document.getElementById("EndTime").value;
+const backgroundColor = document.getElementById("BGCOLOR").value;
+const ganztag = document.getElementById("CheckGanztag").checked;
+
+if (ganztag == false){
+    T = "T"
+}else{
+    T = "";
+    startT="";
+    endT="";
+    endD="";
+}
+//Erst überprüfen, ob alle benötigten Felder (Titel, Startzeit) ausgefüllt sind
+if(title == "" || startD == ""){
+    //Nicht an die Datenbank schicken und den User bitten die benötigten Angaben zu machen 
+    alert("Bitte alle benötigten Felder ausfüllen");
+}else{
+    const xhr = new XMLHttpRequest;
+    xhr.open("POST", "/teams/<%=Team.id%>/Calendar", true);
+    xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+ 
+    xhr.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+        document.getElementById("Titel").value = "";
+        document.getElementById("StartDate").value = "";
+        document.getElementById("StartTime").value = "";
+        document.getElementById("EndDate").value = "";
+        document.getElementById("EndTime").value = "";
+        document.getElementById("BGCOLOR").value = "#000000";
+        location.reload();
+        }
+    };
+
+    xhr.send("title="+title+"&start="+startD+T+startT+"&end="+endD+T+endT+"&backgroundColor="+backgroundColor);
+    
+}
+}
+
+   //Delete Entrys
+   //Seachbar
+    EntrySearchbar.addEventListener("keyup", (e) =>{
+        const searchValue = e.target.value.toUpperCase();
+        if (searchValue != ""){
+            document.getElementById("myentrys").style.display = "none";
+            document.getElementById("results").style.display = "inline-block";
+            document.getElementById("results").innerHTML = "";
+            //Es wurde eine suche eingegeben
+            let Treffer = []
+            //Durchsuchen
+            const myentryclass = document.querySelectorAll(".myentrys")
+            myentryclass.forEach(classs =>{
+                const Titel = classs.title.toUpperCase()
+                if(Titel == searchValue){
+                    Treffer.unshift(classs)
+                }else if (Titel.includes(searchValue)){
+                    Treffer.push(classs);
+                }
+            })
+            
+            //Überprüfen ob es Suchtreffer gibt
+            if (Treffer.length > 0){
+                //Es gibt mindestens einen treffer
+                Treffer.forEach(TrefferHTML =>{
+                    //Jedes passende element im result-div anzeigen
+                    document.getElementById("results").innerHTML += TrefferHTML.outerHTML
+                })
+            }else{
+                //Kein übereinstimmender Treffer + Meldung rausgeben
+                document.getElementById("results").innerHTML = "<p>Kein passender Eintrag gefunden</p>"
+            }
+        }else{
+            document.getElementById("myentrys").style.display = "inline-block"
+            document.getElementById("results").style.display = "none"
+        }
+        
+    })
+
+
+    //Deleting
+    function deleteEntry(Entry){
+        console.log(Entry)
+        const Eintrag = JSON.parse(Entry);
+        const title = Eintrag.title;
+        const start = Eintrag.start;
+        const end = Eintrag.end;
+        const backgroundColor = Eintrag.backgroundColor;
+        const author = Eintrag.author;
+
+        const xhr = new XMLHttpRequest;
+        xhr.open("POST", "/teams/<%=Team.id%>/Calendar/deleteEntry", true);
+        xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+        xhr.onreadystatechange = function() {
+          if (this.readyState == 4 && this.status == 200) {
+              console.log(this.responseText);
+              location.reload();
+          }
+        };
+        xhr.send("title="+title+"&start="+start+"&end="+end+"&backgroundColor="+backgroundColor+"&author="+author)
+    }
+      
+   
+
+    //Funktion, wenn event geklickt wurde
+    function eventClicked(info){
+            console.log(info)
+            console.log(info.event.title)
+            console.log(info.el.style.backgroundColor)
+            console.log(info.event._instance.range.start.toLocaleDateString()+"   "+info.event._instance.range.start.toLocaleTimeString());
+            console.log(info.event._instance.range.end.toLocaleDateString() + "   " +info.event._instance.range.end.toLocaleTimeString())
+
+            // change the border color just for fun
+            info.el.style.borderColor = 'red';
+        }
+
+
+    //Kalender zeichnnen
+    let GetEinträge = '<%-Einträge %>'
+    const Einträge = JSON.parse(GetEinträge);
+    //console.log(GetEinträge)
+    draw(Einträge);
+
+
+        
+        </script>
+</body>
+</html>

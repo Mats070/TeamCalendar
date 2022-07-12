@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- <link rel="stylesheet" href="https://bootswatch.com/4/journal/bootstrap.min.css">
+    <script src="https://kit.fontawesome.com/2a59950bb8.js" crossorigin="anonymous"></script> -->
+    <style>
+        .sidebar {
+            height: 100%; /* 100% Full-height */
+            width: 0; /* 0 width - change this with JavaScript */
+            position: fixed; /* Stay in place */
+            z-index: 1; /* Stay on top */
+            top: 0vh;
+            left: 0;
+            background-color: #111; /* Black*/
+            overflow-x: hidden; /* Disable horizontal scroll */
+            padding-top: 60px; /* Place content 60px from the top */
+            transition: 0.5s; /* 0.5 second transition effect to slide in the sidebar */;
+            color: white; /* Damit man das Geschriebene sieht */
+        }
+
+.sidebar button{
+    font-size: 1.1em;
+    padding: 0.25em;
+    background-color: darkblue;
+    border-color: #111;
+    color: white;
+    cursor: pointer;
+}
+
+.sidebar button.logout{
+    background-color: red;
+}
+
+.TeamOverviewBtns{
+    width: 20%;
+    display: flex;
+    justify-content: center;
+}
+
+
+.TeamOverviewBtns button.infobtn{
+    padding: 0;
+    margin: 0;
+    margin-right: 10%;
+    background-color: grey;
+    border: none;
+    font-size: 1.5em;
+}
+
+.TeamOverviewBtns button.infobtn:hover {
+    color: cyan;
+}
+
+.TeamOverviewBtns button.settingsbtn{
+    height: 5vh;
+    padding: 0;
+    margin: 0;
+    margin-right: 2%;
+    background-color: grey;
+    border: none;
+    font-size: 1.5em;
+}
+
+.TeamOverviewBtns button.settingsbtn:hover {
+    color: cyan;
+}
+
+.center{
+    text-align: center;
+}
+
+.closebtn {
+    position: absolute;
+    top: 0;
+    right: 25px;
+    font-size: 36px;
+    margin-left: 50px;
+    color: red;
+    text-decoration: none;
+}
+
+.closebtn:hover{
+    color: orange;
+}
+
+.openbtn {
+            font-size: 1.2em;
+            cursor: pointer;
+            background-color: white;
+            color: black;
+            padding: 7px 7px 7px 7px;
+            border: none;
+            position: fixed;
+            z-index: 2;
+            border-radius: 5%;
+        }
+
+        .openbtn:hover {
+            background-color: grey;
+            color: white;
+        }
+
+.logout{
+        background-color: red;
+    }
+
+    #Calendar-List{
+        text-align: center;
+    }
+    .cal{
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        height: 5vh;
+        width: 80%;
+        margin-left: 10%;
+        text-align: center;
+        background-color: grey;
+        cursor: pointer;
+        color: white;
+        text-decoration: none;
+        margin-top: 2px;
+    }
+
+    .calPerso{
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 5vh;
+        width: 80%;
+        margin-left: 10%;
+        margin-top: 1%;
+        text-align: center;
+        background-color: grey;
+        cursor: pointer;
+        color: white;
+        text-decoration: none;
+    }
+
+    #CreateTeamBtn{
+        margin-top: 3vh;
+        margin-right: 10%;
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    .Beta{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-left: 3%;
+        background-color: blue;
+        width: 10%;
+        height: 3.5vh;
+        border-radius: 25%;
+    }
+
+    #logo{
+        position: absolute;
+        top: 2vh;
+        left: 2%;
+        color: white;
+        text-decoration: none;
+        font-size: 1.15em;
+    }
+    </style>
+</head>
+<body>
+    <div class="container" id="container">
+        <!-- Sidebar -->
+      <div id="sidebar" class="sidebar">
+        <a href="/dashboard" id="logo">TeamCalendar</a>
+        <a href="javascript:void(0)" class="closebtn" onclick="closeSidebar()">&times;</a>
+          <div id="sidebar-head"  style="text-align: center;">
+              <button onclick="Profile()">Mein Profil</button>
+              <button class="logout" onclick="Logout()">Logout</button>
+          </div>
+          <div id="Calendar-List">
+              <!-- Hier wird der Persönliche Kalender+ alle Team-Kalender auf die man Zugriff hat angezeigt -->
+              <div id="personalCal">
+                  <!-- Persönlicher Kalender -->
+                  <h3>Persönlicher Bereich</h3>
+                  <div class="calPerso" onclick="myCalendar()" id="calPerso">
+                      <span>Mein persönlicher Kalender</span>
+                  </div>
+                  <div class="calPerso" onclick="myToDoList()" id="TODOPERSO">
+                      <span>Persönliche ToDo-Liste</span><span class="Beta">Beta</span>
+                  </div>
+              </div>
+              <div id="TeamCal">
+                  <h3>Meine Team-Kalender</h3>
+                  <!-- alle Teams anzeigen lassen -->
+                  <% TeamList.forEach(team => {%>
+                    <div class="cal" onclick="TeamCalendar('<%=team.id%>')" id="<%=team.id%>">
+                        <span><%=team.Teamname%></span>
+                        <div class="TeamOverviewBtns">
+                            <button class="infobtn" onclick="TeamInfo('<%= team.id%>')" id="infobtn<%=team.id%>">&#9432;</button>
+                            <% const AdminArray = team.Admin %>
+                            <% if (AdminArray.includes(name)){%>
+                                <button class="settingsbtn" id="settingsbtn<%=team.id%>" onclick="TeamSettings('<%= team.id%>')">&#9881;</button>
+                            <%}%>
+                        </div>
+                    </div>
+                  <%})%>
+              </div>
+          </div>
+          <div id="CreateTeamBtn">
+              <button onclick="newTeam()">+ Neues Team</button>
+          </div>
+      </div>
+        <%- body %>
+    </div>
+
+    <!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script> -->
+    <script>
+        let infobtnclicked = false;
+        function openSidebar(){
+            const windowWidth = window.screen.availWidth
+            if (windowWidth < 500){
+                document.getElementById("sidebar").style.width = "90%"
+            }else if(windowWidth < 750){
+                document.getElementById("sidebar").style.width = "65%"
+            }else if(windowWidth < 1000){
+                document.getElementById("sidebar").style.width = "55%"
+            }else if(windowWidth < 1300){
+                document.getElementById("sidebar").style.width = "50%"
+            }else{
+                document.getElementById("sidebar").style.width = "40%"
+            }
+            document.getElementById("sidebar").style.zIndex = "80";
+            document.getElementById("openbtn").style.zIndex = "0"
+            if (window.screen.availWidth > 700){
+                //document.getElementById("main").style.marginLeft = "320px"
+                //console.log(window.screen.availWidth);
+            }
+        }
+
+        function closeSidebar(){
+            document.getElementById("sidebar").style.width = "0px"
+            //document.getElementById("main").style.marginLeft = "0px"
+            setTimeout(function(){
+                document.getElementById("openbtn").style.zIndex = "80"
+            },400)
+        }
+
+        function Logout(){
+            location.href = "/users/logout"
+        }
+
+        function myCalendar(){
+            if (location.href=="/myCalendar"){
+                console.log(location.href)
+                //Befindet sich bereits auf der ausgewählten Seite
+                closeSidebar();
+            }else{
+                //Muss erst auf die Seite wechseln
+                location.href = "/myCalendar"
+            }
+            
+        }
+
+        function myToDoList(){
+            location.href = "/myToDoList"
+        }
+
+        function TeamCalendar(id){
+            if (infobtnclicked == false){
+                location.href = "/teams/"+id+"/Calendar";
+            }
+        }
+
+        function Profile(){
+        location.href = "/users/profile"
+    }
+
+    function newTeam(){
+        location.href = "/createTeam"
+    }
+
+    function TeamInfo(id){
+        infobtnclicked = true;
+        location.href = "/teams/"+id
+        setTimeout(function(){
+            infobtnclicked = false;
+        }, 200)
+    }
+
+    function TeamSettings(id){
+        infobtnclicked = true;
+        location.href = "/teams/"+id+"/settings";
+        setTimeout(function(){
+            infobtnclicked = false
+        },200)
+    }
+    </script>
+    <noscript>Please activate javascript in your Browser to use this application!</noscript>
+</body>
+</html>
