@@ -226,8 +226,9 @@
                 xhr.onreadystatechange = function() {
                     if (this.readyState == 4 && this.status == 200) {
                         const todoRESPONSE = JSON.parse(this.responseText)
-                        document.getElementById("actualToDos").innerHTML += "<div class=todo id="+todoRESPONSE.created+">"+todoRESPONSE.content+"<button class=BtnCompleted onclick=ToDoCompleted('"+todoRESPONSE.content+"*/$*"+todoRESPONSE.created+"')>&#10004;</button></div>"
+                        //document.getElementById("actualToDos").innerHTML += "<div class=todo id="+todoRESPONSE.created+">"+todoRESPONSE.content+"<button class=BtnCompleted onclick=ToDoCompleted('"+todoRESPONSE.content+"*/$*"+todoRESPONSE.created+"')>&#10004;</button></div>"
                         console.log(todoRESPONSE.created);
+                        location.reload();
                     }
                 };
 
@@ -240,7 +241,7 @@
         }
 
 
-        const finished = "<%= finishedTODOSLENGTH %>"
+        let finished = parseInt("<%= finishedTODOSLENGTH %>")
         function ToDoCompleted(TODO){
             const todo = TODO.split("*/$*")
             const xhr = new XMLHttpRequest;
@@ -250,8 +251,8 @@
                   if (this.readyState == 4 && this.status == 200) {
                   if (this.responseText == "Todo completed"){
                     document.getElementById(todo[1]).style.display = "none";
-                    const finishedplus1 = parseInt(finished) + 1;
-                    document.getElementById("finishedlink").innerHTML = "<div onclick=ViewFinished() id=finishedTODO>Abgeschlossene ToDOs("+finishedplus1+")</div>"
+                    finished++;
+                    document.getElementById("finishedlink").innerHTML = "<div onclick=ViewFinished() id=finishedTODO>Abgeschlossene ToDOs("+finished+")</div>"
                   }
                   
             }}

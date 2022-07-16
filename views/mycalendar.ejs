@@ -192,11 +192,11 @@ if (window.screen.availWidth < 800){
 }else{
     DefaultView = "dayGridMonth";
     ToolbarRight = "dayGridMonth,timeGridWeek,timeGridDay,listWeek"
-}
+};
 
+const calendarEl = document.getElementById('calendar');
 
 function draw(objs){
-var calendarEl = document.getElementById('calendar');
 
 let calendar = new FullCalendar.Calendar(calendarEl, {
     //plugins: [ listPlugin ],
@@ -453,6 +453,7 @@ function deleteEntry(Entry){
     let GetEinträge = '<%-Einträge %>'
     const Einträge = JSON.parse(GetEinträge);
     draw(Einträge);
+
     
         </script>
     </div>

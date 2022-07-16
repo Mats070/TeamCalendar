@@ -237,6 +237,27 @@
                     nowIndicator: true,
                     windowResizeDelay: 0,
                     initialView: DefaultView,
+                    dateClick: function(info) {
+      openDialogeField()
+      const datestr = info.dateStr;
+      const viewtype = info.view.type;
+    if (viewtype == "dayGridMonth"){
+        //Beim Overlay Tag schon ausfüllen und den Titel focusen
+        document.getElementById("StartDate").value = datestr
+        document.getElementById("StartDate").style.backgroundColor = "lightyellow"
+        document.getElementById("Titel").focus()
+    }else{
+        const timeArray = datestr.split("T");
+        const time = timeArray[1].substring(0, 5)
+        
+        document.getElementById("StartDate").value = timeArray[0];
+        document.getElementById("StartTime").value = time;
+        
+        document.getElementById("StartDate").style.backgroundColor = "lightyellow";
+        document.getElementById("StartTime").style.backgroundColor = "lightyellow";
+        document.getElementById("Titel").focus()
+    }
+  },
                     headerToolbar: {
                         left: " today AddButton RBtn",
                         right: ToolbarRight

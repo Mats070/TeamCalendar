@@ -146,7 +146,7 @@ router.post("/login",
         //successRedirect: "/dashboard"
     }),(req, res) =>{
         const now = new Date();
-        const date = now.getDate() + "." + now.getMonth() + "." + now.getFullYear() + " " + now.getHours() + ":" + now.getMinutes() ;
+        const date = now.getDate() + "." + (now.getMonth()+1) + "." + now.getFullYear() + " " + now.getHours() + ":" + now.getMinutes() ;
         User.findByIdAndUpdate(req.user.id, {Informations: {validated: req.user.Informations.validated, ValidationCode: req.user.Informations.ValidationCode, introduced: req.user.Informations.introduced, TeamRequests: req.user.Informations.TeamRequests, finishedToDos: req.user.Informations.finishedToDos, LAST_LOGIN: date} }, (err, doc)=>{
             //Neuste loginzeit gespeichert
             res.redirect("/dashboard")
