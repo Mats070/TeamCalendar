@@ -68,7 +68,7 @@
 }
 
 #overlay2 button{
-    margin-top: 3vh;
+    margin-right: 2%;
     text-align: center;
     font-size: 1em;
     background-color: black;
@@ -226,7 +226,7 @@ let calendar = new FullCalendar.Calendar(calendarEl, {
       SidebarBtn: {
           icon: "&#9776;",
           click: function(){
-              alert("Hello")
+              console.log("Hello")
           }
       }
       },
@@ -234,6 +234,27 @@ let calendar = new FullCalendar.Calendar(calendarEl, {
   nowIndicator: true,
   windowResizeDelay: 0,
   initialView: DefaultView,
+  dateClick: function(info) {
+      openDialogeField()
+      const datestr = info.dateStr;
+      const viewtype = info.view.type;
+    if (viewtype == "dayGridMonth"){
+        //Beim Overlay Tag schon ausfüllen und den Titel focusen
+        document.getElementById("StartDate").value = datestr
+        document.getElementById("StartDate").style.backgroundColor = "lightyellow"
+        document.getElementById("Titel").focus()
+    }else{
+        const timeArray = datestr.split("T");
+        const time = timeArray[1].substring(0, 5)
+        
+        document.getElementById("StartDate").value = timeArray[0];
+        document.getElementById("StartTime").value = time;
+        
+        document.getElementById("StartDate").style.backgroundColor = "lightyellow";
+        document.getElementById("StartTime").style.backgroundColor = "lightyellow";
+        document.getElementById("Titel").focus()
+    }
+  },
 headerToolbar: {
     left: ' today AddButton RBtn',
     right: ToolbarRight
@@ -255,6 +276,15 @@ function openDialogeField(){
 }
 
 function CloseDialogeField(){
+        document.getElementById("Titel").value = "";
+        document.getElementById("StartDate").value = "";
+        document.getElementById("StartTime").value = "";
+        document.getElementById("EndDate").value = "";
+        document.getElementById("EndTime").value = "";
+        document.getElementById("BGCOLOR").value = "#000000";
+    
+    document.getElementById("StartDate").style.backgroundColor = "white"
+    document.getElementById("StartTime").style.backgroundColor = "white"
     document.getElementById("overlay").style.display = "none";
     document.getElementById("calendar").style.opacity = "1";
     document.getElementById("openbtn").style.opacity = "1";
@@ -412,7 +442,7 @@ function deleteEntry(Entry){
         xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
         xhr.onreadystatechange = function() {
           if (this.readyState == 4 && this.status == 200) {
-              console.log(this.responseText);
+              //console.log(this.responseText);
               location.reload();
           }
         };

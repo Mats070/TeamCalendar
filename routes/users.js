@@ -122,7 +122,7 @@ router.post("/register", (req, res) =>{
                     .then(user =>{
     
                         //Email mit VerifyLink herraussenden
-                       const sendEmail = VerifyAccount(user.id, user.email);
+                       //const sendEmail = VerifyAccount(user.id, user.email);  (Vorrübergehend deaktiviert)
                        //console.log(sendEmail)
 
                         req.flash("success_msg", "Your are now registered and can log in! We have sent a verify code to your email.")
@@ -139,15 +139,22 @@ router.post("/register", (req, res) =>{
 });
 
 //Login handle
-router.post("/login", (req, res, next) => {
+router.post("/login",  
     passport.authenticate("local", {
-        successRedirect: "/dashboard",
         failureRedirect: "/users/login",
-        failureFlash: true
-    })(req, res, next);
+        failureFlash: true,
+        //successRedirect: "/dashboard"
+    }),(req, res) =>{
+        const now = new Date();
+        const date = now.getDate() + "." + now.getMonth() + "." + now.getFullYear() + " " + now.getHours() + ":" + now.getMinutes() ;
+        User.findByIdAndUpdate(req.user.id, {Informations: {validated: req.user.Informations.validated, ValidationCode: req.user.Informations.ValidationCode, introduced: req.user.Informations.introduced, TeamRequests: req.user.Informations.TeamRequests, finishedToDos: req.user.Informations.finishedToDos, LAST_LOGIN: date} }, (err, doc)=>{
+            //Neuste loginzeit gespeichert
+            res.redirect("/dashboard")
+        })
+    }
     
-
-});
+    
+);
 
 //Logout Handle
 router.get("/logout", ensureAuthenticated, (req, res)=> {
@@ -159,9 +166,12 @@ router.get("/logout", ensureAuthenticated, (req, res)=> {
 router.get("/profile", ensureAuthenticated, (req, res)=>{
     if(req.user.Informations.validated == false){
         //User muss erst noch validated werden
-        res.redirect("/VerifyAccount");
+       // res.redirect("/VerifyAccount");
+
+       //Vorrübergehend deaktiviert
       }else{
           //User ist validated
+      }
           Team.find({Members: req.user.name}, (err, teams)=>{
             res.render("profile", {
                 user: req.user,
@@ -170,7 +180,7 @@ router.get("/profile", ensureAuthenticated, (req, res)=>{
             })
         })
       }
-})
+)
 
 //Persönlicher Settings-Change
 router.post("/settings", ensureAuthenticated, (req, res)=>{

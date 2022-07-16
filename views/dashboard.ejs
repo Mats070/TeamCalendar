@@ -116,7 +116,9 @@
                         <span class="left">Automatisches Löschen 7 Tagen nach Ende des Termins ist nicht aktiviert</span><br>
                     <%}%>
                     <span class="left">Deine Default-Color ist: <span id="color">Color</span></span><br><br>
-                    <span class="left">Anzahl persönlicher ToDo's: <%= user.PersönlicheTodos.length %></span>
+                    <span class="left">Anzahl aktiver persönlicher ToDo's: <%= user.PersönlicheTodos.length %></span><br>
+                    <span class="left">Anzahl abgeschlossener persönlicher ToDo's: <%= user.Informations.finishedToDos.length %> </span><br>
+                    <span class="left">Durchschnittliche Abschlussdauer:<em> <%= averageTimeCompleted %></em></span>
                 </div>
             </div>
             <div class="InfoCard" style="overflow-y: scroll;">
@@ -143,6 +145,7 @@
     <div class="News">
         <!-- News zu Updates und Co -->
         <h3 class="center">Was ist neu?</h3>
+        <p class="left">(13.07) Email-Validation wurde aufgrund von E-Mail-Server Problemen ausgesetzt. </p>
         <h5 class="left">Mama hat Geburtstag</h5>
         <p class="left">(12.07.2022) Herzlich Glückwunsch an Mama</p>
         <h5 class="left">Persönliche ToDoListe</h5>

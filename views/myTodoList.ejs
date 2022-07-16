@@ -103,8 +103,48 @@
             padding-right: 3%;
         }
 
+        #containercreateSelection{
+            width: 100%;
+            display: flex;
+            justify-content: center;
+        }
+
+
         #createSelection{
             margin-top: 3vh;
+            width: 70%;
+            height: 6vh;
+        }
+
+        #InputNewToDo {
+             width: 70%;
+             height: 4vh;
+        }
+
+        #SubmitNewToDo {
+          height: 5vh;
+          background-color: black;
+          color: seashell;
+          border: solid 1.5px lightslategray;
+          cursor: pointer;
+        }
+
+        #finishedTODO{
+            height: 5vh;
+            max-width: 90%;
+            margin-left: 5%;
+            margin-right: 5%;
+            margin-top: 1%;
+            background-color: seashell;
+            font-size: 1.25em;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #finishedTODO:hover {
+            background-color: aquamarine;
         }
 
         .BtnCompleted{
@@ -135,30 +175,30 @@
     <div id="TodoContainer">
         <h1>My personal ToDo's</h1>
         <div id="actualTodosContainer">
-            <div id="actualToDos"></div>
+            <div id="actualToDos">
+                <% if(finishedTODOSLENGTH > 0){%>
+                    <div id="finishedlink">
+                        <div onclick="ViewFinished()" id="finishedTODO">
+                            Abgeschlossene Todos(<%= finishedTODOSLENGTH %>)
+                        </div>
+                    </div>
+                <%}%>
+                <% Todos.forEach(todo=>{%>
+                    <div class="todo" id="<%= todo.created %>"><%= todo.content%> <button class="BtnCompleted" onclick="ToDoCompleted('<%= todo.content%>*/$*<%= todo.created %>')">&#10004;</button></div>
+                <%})%>%>
+            </div>
         </div>
-        <div id="createSelection">
-            <input type="text" id="InputNewToDo" onsubmit="AddToDo()" maxlength="60"><button type="submit" onclick="AddToDo()" id="SubmitNewToDo">Submit</button>
+        <div id="containercreateSelection">
+            <div id="createSelection">
+                <input type="text" id="InputNewToDo" onsubmit="AddToDo()" maxlength="60"><button type="submit" onclick="AddToDo()" id="SubmitNewToDo">Submit</button>
+            </div>
         </div>
     </div>
 
     <script>
-        let todos = "<%= Todos %>".split(",");
-       // const TODOS = JSON.parse(todos);
         window.addEventListener("load", function(){
-            //Alle Todos aus der Datenbank übertragen
-           // console.log(todos)
 
            document.getElementById("TODOPERSO").style.backgroundColor = "darkgrey";
-            todos.forEach(todo =>{
-                if (todo != ""){
-                    let ToDo = todo.replaceAll("/*/$", ",")
-                    let TODO = ToDo.replaceAll(" ", "/*/$");
-                
-                document.getElementById("actualToDos").innerHTML += "<div class=todo>"+ToDo+"<button class=BtnCompleted onclick=ToDoCompleted("+JSON.stringify(TODO)+")>&#10004;</button></div>"
-                }
-                
-            })
             document.getElementById("InputNewToDo").focus();
         })
 
@@ -171,42 +211,55 @@
 
         function AddToDo(){
             const todo = document.getElementById("InputNewToDo").value;
-            if(todo.includes('"') || todo.includes("'") || todo.includes("/*/$")){
-                    alert("Unzulässige Eingabe. Keine Anführungszeichen erlaubt. Außerdem ist die Zeichenabfolge /*/$ ungültig")
-            }else if(todos.includes(todo)){
-                //Todo schon vorhanden
-                alert("Dieses Todo steht bereits auf der liste")
+            if(todo.includes('"') || todo.includes("'") || todo.includes("*/$*")){
+                    alert("Unzulässige Eingabe. Keine Anführungszeichen erlaubt. Außerdem ist die Zeichenabfolge */$* ungültig")
             }else if(todo != ""){
+                /*
                 //Neues Element erstellen und in der Datenbank speichern ohne reloaden der seite
-                const TODO = todo.replaceAll(" ", "/*/$")
                 document.getElementById("actualToDos").innerHTML += "<div class=todo>"+todo+"<button class=BtnCompleted onclick=ToDoCompleted("+JSON.stringify(TODO)+")>&#10004;</div>"
+                */
 
 
                 const xhr = new XMLHttpRequest;
                 xhr.open("POST", "/myToDoList", true);
                 xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+                xhr.onreadystatechange = function() {
+                    if (this.readyState == 4 && this.status == 200) {
+                        const todoRESPONSE = JSON.parse(this.responseText)
+                        document.getElementById("actualToDos").innerHTML += "<div class=todo id="+todoRESPONSE.created+">"+todoRESPONSE.content+"<button class=BtnCompleted onclick=ToDoCompleted('"+todoRESPONSE.content+"*/$*"+todoRESPONSE.created+"')>&#10004;</button></div>"
+                        console.log(todoRESPONSE.created);
+                    }
+                };
+
                 xhr.send("todo="+todo);
                 document.getElementById("InputNewToDo").value = "";
                 document.getElementById("InputNewToDo").focus();
-                todos.push(todo);
             }else{
                 alert("Bitte gebe zunächst etwas ein")
             }
         }
 
-        function ToDoCompleted(todo){
-            let TODO = todo.replaceAll("/*/$", " ");
+
+        const finished = "<%= finishedTODOSLENGTH %>"
+        function ToDoCompleted(TODO){
+            const todo = TODO.split("*/$*")
             const xhr = new XMLHttpRequest;
             xhr.open("POST", "/myToDoList/deleteEntry", true);
             xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
             xhr.onreadystatechange = function() {
                   if (this.readyState == 4 && this.status == 200) {
                   if (this.responseText == "Todo completed"){
-                    location.reload();
+                    document.getElementById(todo[1]).style.display = "none";
+                    const finishedplus1 = parseInt(finished) + 1;
+                    document.getElementById("finishedlink").innerHTML = "<div onclick=ViewFinished() id=finishedTODO>Abgeschlossene ToDOs("+finishedplus1+")</div>"
                   }
                   
             }}
-            xhr.send("todo="+TODO);
+            xhr.send("created="+todo[1]+"&content="+todo[0]);
+        }
+
+        function ViewFinished(){
+            location.href = "/myToDoList/finished"
         }
     </script>
 </body>

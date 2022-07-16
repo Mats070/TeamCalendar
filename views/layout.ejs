@@ -295,6 +295,50 @@
             infobtnclicked = false
         },200)
     }
+
+    let touchstartX;
+    let touchendX;
+    let touchstartY;
+    let touchendY;
+
+
+    document.getElementById("container").addEventListener('touchstart', function (event) {
+    touchstartX = event.changedTouches[0].screenX;
+    touchstartY = event.changedTouches[0].screenY;
+}, false);
+
+document.getElementById("container").addEventListener('touchend', function (event) {
+    touchendX = event.changedTouches[0].screenX;
+    touchendY = event.changedTouches[0].screenY;
+    handleGesture();
+}, false);
+
+
+function handleGesture() {
+    if (touchendX < touchstartX) {
+        if(document.getElementById("sidebar").style.width > 0){
+            closeSidebar()
+        }
+    };
+
+    if (touchendX > touchstartX) {
+        if (document.getElementById("sidebar").style.width == 0 && document.getElementById("openbtn")){
+            openSidebar()
+        }
+    };
+
+    if (touchendY < touchstartY) {
+        console.log('Swiped Up');
+    }
+
+    if (touchendY > touchstartY) {
+        console.log('Swiped Down');
+    }
+
+    if (touchendY === touchstartY) {
+        console.log('Tap');
+    }
+}
     </script>
     <noscript>Please activate javascript in your Browser to use this application!</noscript>
 </body>

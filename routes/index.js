@@ -5,7 +5,7 @@ const { ensureAuthenticated } = require("../config/auth");
 const User = require("../models/user");
 const Team = require("../models/Teams");
 const { json } = require("express/lib/response");
-const nodemailer = require("nodemailer")
+const nodemailer = require("nodemailer");
 
 //Welcome Page
 router.get('/', (req,res)=>{
@@ -18,10 +18,13 @@ router.get('/', (req,res)=>{
 router.get("/dashboard", ensureAuthenticated, (req, res)=>{
     if(req.user.Informations.validated == false){
         //User muss erst noch validated werden
-        req.flash("success_msg", "Wir haben dir einen 4-stelligen Code an deine Email gesendet. Wenn du keine erhalten hast, überprüfe den Spam-Ordner oder fordere eine neue an")
-        res.redirect("/VerifyAccount");
+        //req.flash("success_msg", "Wir haben dir einen 4-stelligen Code an deine Email gesendet. Wenn du keine erhalten hast, überprüfe den Spam-Ordner oder fordere eine neue an")
+        //res.redirect("/VerifyAccount");
+
+        //Vorrübergehend deaktiviert
       }else{
           //render Dashboard
+      }
           Team.find({Members: req.user.name}, (err, teams)=>{
             let EntrysToday = [];
             const AllEntrys = req.user.PersönlicheEinträge;
@@ -57,27 +60,56 @@ router.get("/dashboard", ensureAuthenticated, (req, res)=>{
                 
             })
     
-            const sortedTodayArray = EntrysToday.sort(({ start: a }, {start: b }) => a > b ? 1 : a < b ? -1 : 0)
-            
+            const sortedTodayArray = EntrysToday.sort(({ start: a }, {start: b }) => a > b ? 1 : a < b ? -1 : 0);
+            let UserFriendlyTimeAverage;
+
+            const finishedTODOS = req.user.Informations.finishedToDos;
+            if (finishedTODOS.length > 0){
+                let finish = 0;
+            finishedTODOS.forEach(todo =>{
+                finish += parseInt(todo.timeDifference)
+            })
+            const finishTimeaverage = (finish*-1) / finishedTODOS.length;
+            let seconds = Math.floor(finishTimeaverage / 1000)
+            let minutes = Math.floor(seconds / 60);
+            if (minutes > 0){
+                seconds -= minutes*60;
+            }
+            let hours = Math.floor(minutes / 60);
+            if (hours > 0){
+                minutes -= hours*60
+            };
+            let days = Math.floor(hours / 24);
+            if (days > 0){
+                hours -= days*24
+            }
+            UserFriendlyTimeAverage = days+" Tage  "+hours+" Stunden  "+minutes+" Minuten  "+seconds+" Sekunden";
+
+            }else{
+                UserFriendlyTimeAverage = "Noch keine ToDos abgeschlossen"
+            }
             //rendern des Dashboards
             res.render("dashboard", {
                 name: req.user.name,
                 TeamList: teams,
                 user: req.user,
-                EntrysToday: sortedTodayArray
+                EntrysToday: sortedTodayArray,
+                averageTimeCompleted: UserFriendlyTimeAverage
             });
         });
       }
     
-});
+);
 
 router.get("/myCalendar", ensureAuthenticated, (req, res)=>{
     if(req.user.Informations.validated == false){
       //User muss erst noch validated werden
-      req.flash("success_msg", "Wir haben dir einen 4-stelligen Code an deine Email gesendet. Wenn du keine erhalten hast, überprüfe den Spam-Ordner oder fordere eine neue an")
-      res.redirect("/VerifyAccount");
+      //req.flash("success_msg", "Wir haben dir einen 4-stelligen Code an deine Email gesendet. Wenn du keine erhalten hast, überprüfe den Spam-Ordner oder fordere eine neue an")
+      //res.redirect("/VerifyAccount");
+      //Vorübergehen deaktiviert
     }else{
         //User ist bereits validated
+    }
         const SettingsDelete7Days = req.user.Settings.AutomaticDeleteEntrys;
 
         let meineEinträge = [];
@@ -132,7 +164,7 @@ router.get("/myCalendar", ensureAuthenticated, (req, res)=>{
             })
         
 
-    }});
+    });
     
     router.post("/myCalendar", ensureAuthenticated, (req, res)=>{
         //Neuer Termin
@@ -150,6 +182,7 @@ router.get("/myCalendar", ensureAuthenticated, (req, res)=>{
     })
     
     router.post("/myCalendar/deleteEntry", ensureAuthenticated, (req, res)=>{
+        console.log(req.body)
         //Überprüfen ob die Anfrage vom Autor kommt
         if (req.body.author == req.user.name){
             //Authorisierung erfolgreich, die Löschanfrage kann durchgeführt werden
@@ -167,46 +200,83 @@ router.get("/myCalendar", ensureAuthenticated, (req, res)=>{
 
     //Persönliche Todo-List
     router.get("/myToDoList", ensureAuthenticated, (req, res)=>{
-        const DBToDos = req.user.PersönlicheTodos;
-        let newToDos = [];
-        DBToDos.forEach(todo => {
-            newToDos.push(todo.replaceAll("/*/$", ","))
-        })
         Team.find({Members: req.user.name}, (err, teams)=>{
              res.render("myTodoList", {
                  name: req.user.name,
                  Todos: req.user.PersönlicheTodos,
-                 TeamList: teams
+                 TeamList: teams,
+                 finishedTODOSLENGTH: req.user.Informations.finishedToDos.length
              })
         })
     })
 
     router.post("/myToDoList", ensureAuthenticated, (req, res)=>{
-        let todo = req.body.todo.replaceAll(",", "/*/$");
+        const now = Date.now();
+        const todo = {
+           created: now,
+           content: req.body.todo
+        };
 
         User.findByIdAndUpdate(req.user.id, {$addToSet: {PersönlicheTodos: todo}},(err, doc)=>{
             if (err) throw err;
-            res.send("Added Todo")
+            res.send(todo)
         })
     });
 
     router.post("/myToDoList/deleteEntry", ensureAuthenticated, (req, res)=>{
-        let todo = req.body.todo.replaceAll(",", "/*/$");
-        User.findByIdAndUpdate(req.user.id, {$pull: {PersönlicheTodos: todo}},(err, doc)=>{
-            if (err) throw err;
-            res.send("Todo completed")
+        let finishedToDos = req.user.Informations.finishedToDos;
+        const now = Date.now();
+        const timeDifference = getTimeDifference(req.body.created)
+        const finishedTodo = {
+            created: req.body.created,
+            content: req.body.content,
+            completed: now,
+            timeDifference: timeDifference
+        }
+        console.log(finishedTodo)
+        finishedToDos.push(finishedTodo);
+        let TODOS = req.user.PersönlicheTodos
+        for (i=0; i < TODOS.length; i++){
+            if (TODOS[i].content == req.body.content && TODOS[i].created == req.body.created){
+                TODOS.splice(i, 1)
+            }
+        }
+        //console.log(TODOS)
+        User.findByIdAndUpdate(req.user.id, {PersönlicheTodos: TODOS},(err, doc)=>{
+            User.findByIdAndUpdate(req.user.id, {Informations: {validated: req.user.Informations.validated, ValidationCode: req.user.Informations.ValidationCode, introduced: req.user.Informations.introduced, TeamRequests: req.user.Informations.TeamRequests, finishedToDos: finishedToDos, LAST_LOGIN: req.user.Informations.LAST_LOGIN}}, (err, doc)=>{
+                if (err) throw err;
+                res.send("Todo completed")
+            })
         })
     })
     
-
+    router.get("/myToDoList/finished", ensureAuthenticated, (req, res)=>{
+        const finishedtodos = req.user.Informations.finishedToDos;
+        let finishedTODOS = [];
+        finishedtodos.forEach(todo => {
+            //Completed datum userfreundlich machen und anschließend in den finishedTODOS Array vorne hinzufügen
+            const completed = parseInt(todo.completed);
+            const d = new Date(completed)
+            todo.completed = d.toLocaleString()
+            finishedTODOS.push(todo)
+        })
+        Team.find({Members: req.user.name}, (err, teams)=>{
+            res.render("finishedTodos", {
+                finishedToDos: finishedTODOS,
+                TeamList: teams,
+                name: req.user.name
+            })
+        })
+    })
 
     router.get("/createTeam", ensureAuthenticated, (req, res)=>{
         if(req.user.Informations.validated == false){
             //User muss erst noch validated werden
-            res.redirect("/VerifyAccount");
+            //res.redirect("/VerifyAccount");
           }else{
               //User ist validated
                 //console.log(req.body)
+          }
         let allUsers = [];
     
         User.find({}, (err, user)=>{
@@ -226,7 +296,7 @@ router.get("/myCalendar", ensureAuthenticated, (req, res)=>{
            })
         })
     }
-    });
+    );
 
 router.post("/createTeam", (req, res)=>{
     const Teamname = req.body.Teamname;
@@ -278,19 +348,23 @@ router.post("/VerifyAccount/newEmail", ensureAuthenticated, (req, res)=>{
         subject: "Your Validation Code",
         text: "Your verify Code is: "+req.user.Informations.ValidationCode
     }
-
-    transporter.sendMail(options, function(err, info){
+     
+    //Vorübergehend deaktiviert 
+    /*transporter.sendMail(options, function(err, info){
         if (err){
             console.log("Error while sending email");
             res.send(req.user.Informations.ValidationCode)
             return;
         }
         //console.log(info.response);
-    })
+    })*/
 })
 
 router.get("/VerifyAccount", ensureAuthenticated, (req, res)=>{
-    res.render("EmailVerify", {
+    res.render("ServerMessages", {
+        type: "error",
+        message: "Diese Funktion ist vorrüberegehend deaktiviert",
+        nextRoute: "/dashboard",
         TeamList: []
     })
 })
@@ -307,7 +381,7 @@ router.post("/VerifyAccount", ensureAuthenticated, (req, res)=>{
         User.findById(req.user.id, (err, user)=>{
             introduced = user.Informations.introduced;
             TeamRequests = user.Informations.TeamRequests;
-            User.findByIdAndUpdate(user.id, {Informations: {validated: true, ValidationCode: code, introduced: introduced, TeamRequests: TeamRequests}}, (err, doc)=>{
+            User.findByIdAndUpdate(user.id, {Informations: {validated: true, ValidationCode: code, introduced: introduced, TeamRequests: TeamRequests, finishedToDos: req.user.finishedToDos, LAST_LOGIN: req.user.Informations.LAST_LOGIN}}, (err, doc)=>{
                 if (err) throw err;
                 res.send("true")
             })

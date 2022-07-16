@@ -43,9 +43,14 @@ const UserSchema = new mongoose.Schema({
             ValidationCode: undefined, //aktueller Validation Code wird hier gespeichert
             introduced: false, //wird "true", wenn man sich registriert hat und sich nun die Introuction angeschaut hat.
             TeamRequests: [], //Team Anfragen, werden in diesem Array gespeichert und können angenommen oder abgelehnt werden
-            finishedToDos: 0 //wird bei jedem erledigten ToDo um 1 erhöt
+            finishedToDos: [], //wird bei jedem erledigten ToDo um das neue abgeschlossene erhöt
+            LAST_LOGIN: ""
         }
-    }
+    },
+    USERINFORMATIONS:{
+        type: Object,
+        default: {}
+    },
 });
 
 const User = mongoose.model("User", UserSchema);
