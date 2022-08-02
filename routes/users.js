@@ -31,15 +31,25 @@ router.get("/register", (req, res)=>{
     })
 });
 
+router.post("/register/validName", (req, res)=>{
+    User.findOne({name: req.body.name}, (err, user)=>{
+        if (user){
+            res.send("Exist");
+        }else{
+            res.send("Available");
+        }
+    })
+})
+
 //Register Handle
 router.post("/register", (req, res) =>{
     //console.log(req.body)
-    const { name, email, password, password2 } = req.body;
+    const { name, password, password2 } = req.body;
     
     let errors = [];
 
     //Check required fields
-    if(!name || !email || !password || !password2) {
+    if(!name || !password || !password2) {
         errors.push({ msg:"Please fill in all fields"});
     }
 
@@ -50,55 +60,38 @@ router.post("/register", (req, res) =>{
 
     //Check password length
     if(password.length < 6){
-        errors.push({ msg: "Password should be at least 6 characters"});
+        errors.push({ msg: "Password should not be weak"});
     }
 
     if(errors.length > 0){
        res.render("register", {
            errors,
            name,
-           email,
            password,
            password2,
            TeamList: []
        });
     } else{
         //Validation passed
-        User.findOne({ email: email })
+        User.findOne({ name: name })
         .then(user =>{
-            if(user){
+            if(user || name == "System" || name == "Admin" || name=="Organizee" || name== "Service" || name=="Server"){
                // User exist 
-               errors.push({ msg: "Email is already registered" })
+               errors.push({ msg: "Username is already registered" })
                res.render("register", {
                 errors,
                 name,
-                email,
                 password,
                 password2,
                 TeamList: []
                })
             } else {
-                User.findOne({name: name})
-               .then(user=>{
-                if (user || name == "System" || name == "Admin" || name=="TeamCalendar" || name == "TeamCalendar-App" || name == "teamcalendar.app" || name== "Service" || name=="Server"){
-                    //Name bereits vorhanden
-                    errors.push({msg: "Dieser Benutzername existiert bereits. Wählen Sie einen anderen!"});
-                    res.render("register", {
-                        errors,
-                        name,
-                        email,
-                        password,
-                        password2,
-                        TeamList: []
-                    })
-                } else {
                     if(name.includes("<") || name.includes(">") || name.includes("|") || name.includes(",") || name.includes("$") || name.includes("&") || name.includes("%") || name.includes("*") || name.includes("+") || name.includes("/") || name.includes("{") || name.includes("[") || name.includes("}") || name.includes("]") || name.includes("(") || name.includes(")") || name.includes('"') || name.includes("'")){
                         //Keine Sonderzeichen (Meldung ins Frontend geben)
-                        errors.push({msg: 'Folgende Sonderzeichen sind nicht zulässig:  <>|$%&,*+/(){[]}" '});
+                        errors.push({msg: 'These special characters are not valid in the username:  <>|$%&,*+/(){[]}" '});
                     res.render("register", {
                         errors,
                         name,
-                        email,
                         password,
                         password2,
                         TeamList: []
@@ -107,7 +100,6 @@ router.post("/register", (req, res) =>{
                         //Neuen User erstellen
                         const newUser = new User({
                             name,
-                            email,
                             password
                     })
                    
@@ -125,7 +117,7 @@ router.post("/register", (req, res) =>{
                        //const sendEmail = VerifyAccount(user.id, user.email);  (Vorrübergehend deaktiviert)
                        //console.log(sendEmail)
 
-                        req.flash("success_msg", "Your are now registered and can log in! We have sent a verify code to your email.")
+                        req.flash("success_msg", "Your are now registered and can log in!")
                         res.redirect("/users/login");
                     })
                     .catch(err => console.log(err));
@@ -133,8 +125,6 @@ router.post("/register", (req, res) =>{
                 }
             }
         });
-    }
-})
     }
 });
 

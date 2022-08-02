@@ -1,0 +1,98 @@
+body{
+    margin: 0;
+    padding: 0;
+}
+
+#calendar{
+    width: 100%;
+    height: 100vh;
+}
+
+#calendar #calendar-header{
+    height: 7.5vh;
+    padding: 0 4px ;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#calendar #calendar-header #date-display{
+    font-weight: bolder;
+    font-size: 1.25em;
+    padding-left: 5px;
+}
+
+#calendar #calendar-main{
+    height: 80vh;
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+}
+
+#calendar #calendar-main .day{
+    border: 1px solid grey;
+}
+
+#calendar #calendar-main .padding-day{
+    color: darkgrey;
+}
+
+#calendar #calendar-main .day:hover{
+    background-color: lightgray;
+    cursor: pointer;
+}
+
+#calendar #calendar-main #currentDay{
+    background-color: lightblue;
+}
+
+#calendar #weekdays{
+    height: 5vh;
+    display: flex;
+}
+
+#calendar #weekdays .weekday{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: calc(100% / 7);
+    border: 1px solid black;
+    font-weight: bold;
+}
+
+#calendar #calendar-footer{
+    height: 7.5vh;
+}
+
+.Events{
+    height: 80%;
+}
+
+.dayHeaderInfos{
+    height: 20%;
+    display: flex;
+    justify-content: right;
+}
+
+.dayHeaderInfos span{
+    padding-right: 3px;
+}
+
+.event{
+    overflow-y: hidden;
+    overflow-x: hidden;
+    height: 18%;
+    max-height: 18%;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    margin-bottom: 1%;
+}
+
+.MonthViewShowColor{
+    margin-left: 2px;
+    display: inline-block;
+    text-align: center;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+}

@@ -1,5 +1,5 @@
 // first: npm install bcrypt connect-flash express ejs express-ejs-layouts express-session mongoose passport passport-local
-
+//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
 
 const express = require("express");
 const expressLayouts = require("express-ejs-layouts");
@@ -61,6 +61,8 @@ app.use((req, res, next) => {
 app.use('/', require('./routes/index'));
 app.use("/users", require("./routes/users"));
 app.use("/teams", require("./routes/teamsHandling"));
+app.use("/lib", require("./routes/openLib"));
+
 
 const PORT = process.env.PORT || 3000;
 
