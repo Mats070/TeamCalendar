@@ -171,7 +171,8 @@
 </head>
 <body>
     <div class="container" id="container">
-        <!-- Sidebar -->
+        <% if (TeamList){%>
+             <!-- Sidebar -->
       <div id="sidebar" class="sidebar">
         <a href="/dashboard" id="logo">Organizee</a>
         <a href="javascript:void(0)" class="closebtn" onclick="closeSidebar()">&times;</a>
@@ -212,6 +213,8 @@
               <button onclick="newTeam()">+ Neues Team</button>
           </div>
       </div>
+        <%}%>
+       
         <%- body %>
     </div>
 
