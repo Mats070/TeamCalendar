@@ -14,6 +14,14 @@ router.get('/', (req,res)=>{
     })
 });
 
+//IP Address
+router.get("/ip", (req, res)=>{
+    let ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+    ip = ip.toString().replace('::ffff:', '');
+    console.log(ip)
+    res.send(ip)
+})
+
 //Dashboard 
 router.get("/dashboard", ensureAuthenticated, (req, res)=>{
     if(req.user.Informations.validated == false){
