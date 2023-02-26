@@ -26,5 +26,14 @@
      <span><h4>Schritt 5 - Informieren</h4>Informieren sie sich regelmäßig auf ihrem Dashboard über neue Funktionen und Updates, da vorraussichtlich noch einige Features hinzugefügt werden, um die Qualität ihrer Organisation zu verbessern</span><br><br>
      <span><a href="/users/login">Ich habe schon einen Account - Jetzt einloggen</a></span>
    </div>
+
+   <script>
+    //Cookie erlaubnis erfragen
+    setTimeout(function(){
+      document.requestStorageAccess().then(res =>{
+          console.log(res);
+      })
+    }, 2000)
+   </script>
 </body>
 </html>
