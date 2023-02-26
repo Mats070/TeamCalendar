@@ -13,7 +13,8 @@ const handleLogin = async (req, res)=>{
     if (!name || !password){
         errors.push("Fill out all Fields");
         return res.render("login", {
-            errors: errors
+            errors: errors,
+            TeamList: []
         })
     }
     //Find User by Username
@@ -24,7 +25,8 @@ const handleLogin = async (req, res)=>{
             errors.push("This Username is not registered");
             req.flash("error_msg", "User nicht registriert");
             res.render("login", {
-                errors: errors
+                errors: errors,
+                TeamList: []
             })
         }else{
             //User gefunden 
@@ -35,7 +37,8 @@ const handleLogin = async (req, res)=>{
                 errors.push("Password incorrect");
                 req.flash("error_msg", "Password falsch");
                 res.render("login", {
-                    errors: errors
+                    errors: errors,
+                    TeamList: []
                 })
             }else{
                 //Passwort richtig => Create JWT
