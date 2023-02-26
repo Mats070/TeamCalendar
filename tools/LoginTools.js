@@ -52,7 +52,7 @@ const handleLogin = async (req, res)=>{
                 user.save();
                 
 
-                res.cookie('jwt', refreshToken, { httpOnly: true, sameSite: 'None', secure: true, maxAge: 3 * 24 * 60 * 60 * 1000 });
+                res.cookie('jwt', refreshToken, { httpOnly: true, sameSite: 'None', secure: true, maxAge: 20 * 60 * 60 * 1000 });
                 res.redirect("/dashboard")
             }
         }
