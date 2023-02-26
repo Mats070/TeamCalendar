@@ -14,6 +14,12 @@ router.get('/', (req,res)=>{
     })
 });
 
+router.get("/viewCookies", (req, res)=>{
+    console.log(req.cookies);
+    res.json(req.cookies)
+    //res.sendStatus(200)
+})
+
 //IP Address
 router.get("/ip", (req, res)=>{
     let ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
