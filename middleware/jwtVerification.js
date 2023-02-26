@@ -1,4 +1,3 @@
-require("dotenv").config();
 
 const verifyJWT = (req, res, next)=>{
     const user = req.user;

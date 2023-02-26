@@ -1,6 +1,6 @@
-require("dotenv").config();
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const refreshSecret = "7676fac37efe6722628b767e8cdf15708cd893b8dca1e51833af84c9065fdc246da9f0a89c538fc7bb756a1937fe0a69086207e20e5643d849d8189fd5bff5d7";
 
 
 // Load User Model
@@ -44,7 +44,7 @@ const handleLogin = async (req, res)=>{
                         username: name
 
                     },
-                    process.env.REFRESH_TOKEN_SECRET,
+                    refreshSecret,
                     //Change That later
                     { expiresIn: '3d' }
                 );    
