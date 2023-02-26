@@ -34,5 +34,14 @@ router.get("/code/Calendar.css", (req, res)=>{
     });
 })
 
+router.get("/builder", (req, res)=>{
+    res.send("Fine")
+});
+
+router.post("/builder", (req, res)=>{
+    console.log(req.body);
+    res.sendStatus(200);
+})
+
 //Router exporten
 module.exports = router;
