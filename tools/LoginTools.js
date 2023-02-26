@@ -50,10 +50,10 @@ const handleLogin = async (req, res)=>{
                 );    
                 //User saven
                 user.save();
-                
+                res.redirect("/")
 
-                res.cookie('jwt', refreshToken, { httpOnly: true, sameSite: 'None', secure: true, maxAge: 20 * 60 * 60 * 1000 });
-                res.redirect("/dashboard")
+                //res.cookie('jwt', refreshToken, { httpOnly: true, sameSite: 'None', secure: true, maxAge: 20 * 60 * 60 * 1000 });
+                //res.redirect("/dashboard")
             }
         }
     })
