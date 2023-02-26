@@ -9,6 +9,7 @@ const nodemailer = require("nodemailer");
 
 //Welcome Page
 router.get('/', (req,res)=>{
+    res.cookie('Test', "Hello", { httpOnly: true, sameSite: 'None', secure: true, maxAge: 20 * 60 * 60 * 1000 });
     res.render("welcome", {
         TeamList: []
     })
