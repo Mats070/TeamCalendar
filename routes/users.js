@@ -1,14 +1,11 @@
 const express = require("express");
-const res = require("express/lib/response");
 const router = express.Router();
 const bcrypt = require("bcrypt");
-const passport = require("passport")
 
 //Nodemailer 
 const nodemailer = require("nodemailer");
 
 // User Model
-const user = require("../models/user");
 const User = require("../models/user");
 const { ensureAuthenticated } = require("../config/auth");
 
@@ -129,26 +126,11 @@ router.post("/register", (req, res) =>{
 });
 
 //Login handle
-router.post("/login",  
-    passport.authenticate("local", {
-        failureRedirect: "/users/login",
-        failureFlash: true,
-        //successRedirect: "/dashboard"
-    }),(req, res) =>{
-        const now = new Date();
-        const date = now.getDate() + "." + (now.getMonth()+1) + "." + now.getFullYear() + " " + now.getHours() + ":" + now.getMinutes() ;
-        User.findByIdAndUpdate(req.user.id, {Informations: {validated: req.user.Informations.validated, ValidationCode: req.user.Informations.ValidationCode, introduced: req.user.Informations.introduced, TeamRequests: req.user.Informations.TeamRequests, finishedToDos: req.user.Informations.finishedToDos, LAST_LOGIN: date} }, (err, doc)=>{
-            //Neuste loginzeit gespeichert
-            res.redirect("/dashboard")
-        })
-    }
-    
-    
-);
+router.post("/login", require("../tools/LoginTools"));
 
 //Logout Handle
 router.get("/logout", ensureAuthenticated, (req, res)=> {
-    req.logout();
+    res.clearCookie('jwt', { httpOnly: true, sameSite: 'None', secure: true });
     req.flash("success_msg", "You are logged out");
     res.redirect("/users/login");
 })

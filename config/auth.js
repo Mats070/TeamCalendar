@@ -1,9 +1,13 @@
 module.exports = {
     ensureAuthenticated: function(req, res, next){
-        if(req.isAuthenticated()){
-            return next();
-        }
-        req.flash("error", "Please log in to view this resource");
-        res.redirect("/users/login");
+        const user = req.user;
+        const token = req.cookies.jwt;
+        if (token && user){
+            //Everything fine
+            next();
+        }else{
+            req.flash("error", "Please log in to view this resource");
+            res.redirect("/users/login");
+        }     
     }
 }

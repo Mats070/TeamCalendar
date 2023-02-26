@@ -1,17 +1,17 @@
 // first: npm install bcrypt connect-flash express ejs express-ejs-layouts express-session mongoose passport passport-local
 //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
+require("dotenv").config();
 
 const express = require("express");
 const expressLayouts = require("express-ejs-layouts");
 const mongoose = require("mongoose");
 const flash = require("connect-flash");
 const session = require("express-session");
-const passport = require("passport")
+const usercookie = require("./middleware/ReqUser");
+const cookieParser = require("cookie-parser");
 
 const app = express();
 
-//Passport config
-require("./config/passport")(passport);
 
 // DB config
 const db = require("./config/keys").MongoURI;
@@ -34,6 +34,11 @@ app.use(express.json());
 //Bodyparser
 app.use(express.urlencoded({ extended: false}));
 
+//middleware for cookies
+app.use(cookieParser());
+
+//middleware for req.user
+app.use(usercookie);
 
 //Express Session
 app.use(session({
@@ -41,10 +46,6 @@ app.use(session({
     resave: true,
     saveUninitialized: true
 }));
-
-//Passport Middelware
-app.use(passport.initialize());
-app.use(passport.session());
 
 //Connect flash
 app.use(flash());
