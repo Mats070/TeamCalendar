@@ -15,6 +15,10 @@ router.get('/', (req,res)=>{
     })
 });
 
+router.get("/favicon.ico", (req, res)=>{
+    res.sendFile(process.cwd() + "/favicon.png")
+})
+
 router.get("/viewCookies", (req, res)=>{
     console.log(req.cookies);
     res.json(req.cookies)

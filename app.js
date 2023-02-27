@@ -1,14 +1,17 @@
 // first: npm install bcrypt connect-flash express ejs express-ejs-layouts express-session mongoose passport passport-local
 //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
-require("dotenv").config();
 
 const express = require("express");
 const expressLayouts = require("express-ejs-layouts");
 const mongoose = require("mongoose");
 const flash = require("connect-flash");
 const session = require("express-session");
-const usercookie = require("./middleware/ReqUser");
 const cookieParser = require("cookie-parser");
+const cors = require("cors");
+
+//Cookie Detection
+const usercookie = require("./middleware/ReqUser");
+const projectcookie = require("./middleware/ReqProject");
 
 const app = express();
 
@@ -37,8 +40,9 @@ app.use(express.urlencoded({ extended: false}));
 //middleware for cookies
 app.use(cookieParser());
 
-//middleware for req.user
+//middleware for req.user und req.project
 app.use(usercookie);
+app.use(projectcookie);
 
 //Express Session
 app.use(session({
@@ -62,7 +66,10 @@ app.use((req, res, next) => {
 app.use('/', require('./routes/index'));
 app.use("/users", require("./routes/users"));
 app.use("/teams", require("./routes/teamsHandling"));
+//CORS aktivieren
+app.use(cors());
 app.use("/lib", require("./routes/openLib"));
+app.use("/platform", require("./routes/platform"));
 
 
 const PORT = process.env.PORT || 3000;

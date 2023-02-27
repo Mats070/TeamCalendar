@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Project</title>
+    <style>
+        .form-container{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        form{
+            padding-top: 3em;
+            border: 1px solid black;
+            width: 70%;
+        }
+
+        form input{
+            width: 90%;
+            margin: 0.5vh 5%;
+            height: 2.5em;
+        }
+
+        form button{
+            width: 80%;
+            margin: 2vh 10%;
+            height: 3em;
+            background-color: red;
+            color: whitesmoke;
+            border: 1px solid whitesmoke;
+            box-sizing: border-box;
+            font-size: normal;
+            font-weight: bold;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1 style="text-align: center;">New Project</h1>
+    <div class="form-container">
+        <form action="/platform/projects/add" method="POST" id="AddProjectForm">
+            <input type="text" name="name" id="name" placeholder="Name" autocomplete="off">
+            <input type="email" name="email" id="email" placeholder="Email" autocomplete="off">
+            <input type="text" name="password" id="password" placeholder="Password" autocomplete="off" disabled>
+            <button type="submit">Erstellen</button>
+        </form>
+    </div>
+
+    <script>
+        const ProjectForm = document.getElementById("AddProjectForm");
+
+        ProjectForm.addEventListener("submit", (e)=>{
+            const NameInput = document.getElementById("name");
+            const EmailInput = document.getElementById("email");
+            const PasswordInput = document.getElementById("password");
+
+            if (NameInput.value.length > 2){
+                NameInput.style.border = "2px solid black";
+                if (EmailInput.value.length > 5 && EmailInput.value.includes("@") && EmailInput.value.includes(".")){
+                    EmailInput.style.border = "2px solid black";
+                    EmailInput.value = EmailInput.value.toLowerCase();
+                    PasswordInput.value = EmailInput.value.toLowerCase();
+                }else{
+                    EmailInput.style.border = "2px solid red";
+                    e.preventDefault();
+                }
+            }else{
+                NameInput.style.border = "2px solid red";
+                e.preventDefault();
+            }
+        })
+    </script>
+</body>
+</html>

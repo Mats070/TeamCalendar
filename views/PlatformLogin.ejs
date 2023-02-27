@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Platform Login</title>
+    <style>
+        .form-container{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        form{
+            padding-top: 3em;
+            border: 1px solid black;
+            width: 70%;
+        }
+
+        form input{
+            width: 90%;
+            margin: 0.5vh 5%;
+            height: 2.5em;
+        }
+
+        form button{
+            width: 80%;
+            margin: 2vh 10%;
+            height: 3em;
+            background-color: red;
+            color: whitesmoke;
+            border: 1px solid whitesmoke;
+            box-sizing: border-box;
+            font-size: normal;
+            font-weight: bold;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1 style="text-align: center;">Platform Login</h1>
+    <div class="form-container">
+        <form action="/platform/login" method="POST" id="LoginForm">
+            <input type="text" id="email" name="email" placeholder="Enter Email">
+            <input type="password" id="password" name="password" placeholder="Enter Password">
+            <button type="submit">Log In</button>
+        </form>
+    </div>
+
+    <script>
+        const LoginForm = document.getElementById("LoginForm");
+
+        LoginForm.addEventListener("submit", (e)=>{
+            const EmailInput = document.getElementById("email");
+            const PasswordInput = document.getElementById("password");
+            if(EmailInput.value.length > 4 && EmailInput.value.includes("@") && EmailInput.value.includes(".")){
+                EmailInput.style.border = "2px solid black";
+                if (PasswordInput.value.length > 4){
+                    PasswordInput.style.border = "2px solid black";
+                }else{
+                    PasswordInput.style.border = "2px solid red";
+                    e.preventDefault();
+                }
+            }else{
+                EmailInput.style.border = "2px solid red";
+                e.preventDefault();
+            }
+        })
+    </script>
+</body>
+</html>

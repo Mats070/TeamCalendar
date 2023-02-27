@@ -126,7 +126,7 @@ router.post("/register", (req, res) =>{
 });
 
 //Login handle
-router.post("/login", require("../tools/LoginTools"));
+router.post("/login", require("../tools/LoginTools").handleUserLogin);
 
 //Logout Handle
 router.get("/logout", ensureAuthenticated, (req, res)=> {

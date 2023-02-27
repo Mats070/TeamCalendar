@@ -1,12 +1,14 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const refreshSecret = "7676fac37efe6722628b767e8cdf15708cd893b8dca1e51833af84c9065fdc246da9f0a89c538fc7bb756a1937fe0a69086207e20e5643d849d8189fd5bff5d7";
+const refreshSecretUser = "7676fac37efe6722628b767e8cdf15708cd893b8dca1e51833af84c9065fdc246da9f0a89c538fc7bb756a1937fe0a69086207e20e5643d849d8189fd5bff5d7";
+const refreshSecretPlatform = "7676fhjlöäfe6722628b767e8cdf15708cd893b8dca1e51833af84c9065fdc246da9f0a89c538fc7bb756a1937fe0a69086207e20e5643d849d8189fd5bff5d7";
 
 
-// Load User Model
+// Load Models
 const User = require("../models/user");
+const Project = require("../models/project");
 
-const handleLogin = async (req, res)=>{
+const handleUserLogin = async (req, res)=>{
     let errors = [];
 
     const {name, password} = req.body;
@@ -47,12 +49,10 @@ const handleLogin = async (req, res)=>{
                         username: name
 
                     },
-                    refreshSecret,
+                    refreshSecretUser,
                     //Change That later
                     { expiresIn: '3d' }
                 );    
-                //User saven
-                user.save();
                 res.cookie('jwt', refreshToken, { httpOnly: true, sameSite: 'Strict', maxAge: 20 * 60 * 60 * 1000 });
                 res.redirect("/dashboard")
             }
@@ -60,4 +60,44 @@ const handleLogin = async (req, res)=>{
     })
 }
 
-module.exports = handleLogin;
+const handlePlatformLogin = async (req, res)=>{
+    const {email, password} = req.body;
+    if (email && password){
+        Project.findOne({email: email})
+        .then(project =>{
+            if(!project){
+                res.render("PlatformLogin", {
+                    errors: ["Email-Adresse nicht registriert"],
+                    TeamList: []
+                });
+            }else{
+                //Projekt vorhanden
+                const storedPassword = project.password;
+                const match = bcrypt.compareSync(password, storedPassword);
+                if (!match){
+                    //Ungültiges Passwort
+                    res.render("PlatformLogin", {
+                        errors: ["Ungültiges Passwort"],
+                        TeamList: []
+                    });
+                }else{
+                    //Password richtig => Login erfolgreich
+                    const refreshToken = jwt.sign(
+                        {
+                            email: email
+                        },
+                        refreshSecretPlatform,
+                        //Change That later
+                        { expiresIn: '3d' }
+                    );    
+                    res.cookie('platform', refreshToken, { httpOnly: true, sameSite: 'Strict', maxAge: 3* 24 * 60 * 60 * 1000 });
+                    res.redirect("/platform/project/" + project.id)
+                }
+            }
+        })
+    }else{
+        res.sendStatus(400);
+    }
+}
+
+module.exports = {handleUserLogin, handlePlatformLogin};
