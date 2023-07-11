@@ -8,10 +8,13 @@ const flash = require("connect-flash");
 const session = require("express-session");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
+const fileUpload = require('express-fileupload');
+
 
 //Cookie Detection
 const usercookie = require("./middleware/ReqUser");
 const projectcookie = require("./middleware/ReqProject");
+const { append } = require("express/lib/response");
 
 const app = express();
 
@@ -36,6 +39,10 @@ app.use(express.json());
 
 //Bodyparser
 app.use(express.urlencoded({ extended: false}));
+ 
+//Fileupload
+app.use(fileUpload())
+
 
 //middleware for cookies
 app.use(cookieParser());
@@ -69,7 +76,13 @@ app.use("/teams", require("./routes/teamsHandling"));
 //CORS aktivieren
 app.use(cors());
 app.use("/lib", require("./routes/openLib"));
+
+//Website Builder Platform
 app.use("/platform", require("./routes/platform"));
+
+//Mama Geburtstag
+app.use("/mama/", require("./routes/mama"));
+
 
 
 const PORT = process.env.PORT || 3000;

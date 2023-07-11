@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const personalAuth = require("../config/auth").personalAuth;
 const platformAuth = require("../config/auth").platformAuth;
+const CreateJWTWithUserInfos = require("../tools/analyseTools").CreateJWTWithUserInfos;
 
 const Project = require("../models/project");
 const bcrypt = require("bcrypt");
@@ -75,6 +76,17 @@ router.post("/project/:id/formSubmit", (req, res)=>{
     }else{
         res.sendStatus(400);
     }
+});
+
+router.post("/project/:id/analyseTools/newVisit", async (req, res)=>{
+    const newCookie = await CreateJWTWithUserInfos(req.body.cookie, req);
+    const JSON = {
+        cname: "Analytics_Auth",
+        cvalue: newCookie,
+        expDate: 365,
+    }
+    res.status(200).json(JSON);
 })
+
 
 module.exports = router;
