@@ -42,7 +42,7 @@ router.get("/galerie", (req, res)=>{
 })
 
 router.get("/random", (req, res)=>{
-    const dirpath = path.join(process.cwd(), "Galerie")
+    const dirpath = path.join(".",process.cwd(), "Galerie")
     /*const direxist = fs.existsSync(dirpath);
     if(!direxist){
         fs.mkdirSync(dirpath);
