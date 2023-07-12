@@ -5,7 +5,7 @@ const fs = require("fs");
 const path = require("path");
 
 router.post("/upload", (req, res)=>{
-    const dirpath = path.join(process.cwd(), "Galerie")
+    const dirpath = path.join(__dirname,"..", "Galerie")
     /*const direxist = fs.existsSync(dirpath);
     if(!direxist){
         fs.mkdirSync(dirpath);
@@ -27,17 +27,18 @@ router.post("/upload", (req, res)=>{
 });
 
 router.get("/file/*?",(req, res)=>{
-    const filepath = path.join(process.cwd(), "Galerie", req.params[0])
+    const filepath = path.join(__dirname,"..", "Galerie", req.params[0])
     res.sendFile(filepath)
 })
 
 router.get("/galerie", (req, res)=>{
     const dirpath = path.join(process.cwd(), "Galerie")
+    const DirName = path.join(__dirname, "..", "Galerie");
     /*const direxist = fs.existsSync(dirpath);
     if(!direxist){
         fs.mkdirSync(dirpath);
     };*/
-    const dir = fs.readdirSync(dirpath);
+    const dir = fs.readdirSync(DirName);
     res.send(dir)
 })
 
