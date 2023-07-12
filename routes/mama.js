@@ -54,6 +54,10 @@ router.get("/random", (req, res)=>{
     res.send(shuffledArray)
 })
 
+router.get("/process", (req, res)=>{
+    res.send(process.cwd())
+});
+
 function shuffleArray(array) {
     for (let i = array.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
