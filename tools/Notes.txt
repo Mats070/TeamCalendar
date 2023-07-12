@@ -1,0 +1,4 @@
+Analyse Cookie:
+- Wann wurde die Seite das Letzte mal Besucht
+    -> Länger als 45 Minuten her --> neuer offizieler Seitenbesuch + Gespeicherte Routes werden wieder auf [] gesetzt
+    -> Weniger als 45 Minuten her --> kein neuer Seitenbesuch + Besuchte Routes in dieser Zeitspanne werden abgespeichert, um später zu analysieren wieviele Leute sich mehr als 3 verschiedene Routes anschauen
