@@ -42,18 +42,17 @@ router.get("/galerie", (req, res)=>{
 })
 
 router.get("/random", (req, res)=>{
-    const dirpath = path.join(process.cwd(), "Galerie");
+    //const dirpath = path.join(process.cwd(), "Galerie");
     const DirName = path.join(__dirname, "..", "Galerie");
-    res.send(DirName);
     /*const direxist = fs.existsSync(dirpath);
     if(!direxist){
         fs.mkdirSync(dirpath);
     };*/
 
-    const dir = fs.readdirSync(dirpath);
+    const dir = fs.readdirSync(DirName);
     const shuffledArray = shuffleArray(dir);
 
-    //res.send(shuffledArray)
+    res.send(shuffledArray)
 })
 
 router.get("/process", (req, res)=>{
