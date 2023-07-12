@@ -6,10 +6,10 @@ const path = require("path");
 
 router.post("/upload", (req, res)=>{
     const dirpath = path.join(process.cwd(), "Galerie")
-    const direxist = fs.existsSync(dirpath);
+    /*const direxist = fs.existsSync(dirpath);
     if(!direxist){
         fs.mkdirSync(dirpath);
-    };
+    };*/
 
     const File = req.files.File;
     const type = File.name.split(".")
@@ -33,20 +33,20 @@ router.get("/file/*?",(req, res)=>{
 
 router.get("/galerie", (req, res)=>{
     const dirpath = path.join(process.cwd(), "Galerie")
-    const direxist = fs.existsSync(dirpath);
+    /*const direxist = fs.existsSync(dirpath);
     if(!direxist){
         fs.mkdirSync(dirpath);
-    };
+    };*/
     const dir = fs.readdirSync(dirpath);
     res.send(dir)
 })
 
 router.get("/random", (req, res)=>{
     const dirpath = path.join(process.cwd(), "Galerie")
-    const direxist = fs.existsSync(dirpath);
+    /*const direxist = fs.existsSync(dirpath);
     if(!direxist){
         fs.mkdirSync(dirpath);
-    };
+    };*/
 
     const dir = fs.readdirSync(dirpath);
     const shuffledArray = shuffleArray(dir);
